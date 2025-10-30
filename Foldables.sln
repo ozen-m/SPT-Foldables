@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foldables.Server", "Foldables.Server\Foldables.Server.csproj", "{382D6684-0733-EB3C-0D24-5AF711A308D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foldables", "Foldables\Foldables.csproj", "{A608A641-F222-D8DE-E705-BFC21B7032E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{382D6684-0733-EB3C-0D24-5AF711A308D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{382D6684-0733-EB3C-0D24-5AF711A308D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{382D6684-0733-EB3C-0D24-5AF711A308D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{382D6684-0733-EB3C-0D24-5AF711A308D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A608A641-F222-D8DE-E705-BFC21B7032E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A608A641-F222-D8DE-E705-BFC21B7032E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A608A641-F222-D8DE-E705-BFC21B7032E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A608A641-F222-D8DE-E705-BFC21B7032E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55F5F5A2-135A-4347-9C10-F4956336ED18}
+	EndGlobalSection
+EndGlobal

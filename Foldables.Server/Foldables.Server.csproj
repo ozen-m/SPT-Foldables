@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Foldables</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <OutputType>Library</OutputType>
+    <Version>1.0.0</Version>
+    <Authors>ozen</Authors>
+    <!-- The two lines below will set the output path for the binaries -->
+    <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="SPTarkov.Common" Version="4.0.2" />
+    <PackageReference Include="SPTarkov.DI" Version="4.0.2" />
+    <PackageReference Include="SPTarkov.Server.Core" Version="4.0.2" />
+    <PackageReference Include="SPTarkov.Reflection" Version="4.0.2" />
+  </ItemGroup>
+  
+  <Target Name="CopyOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <DestDir>$(ProjectDir)..\..\..\SPT\user\mods\$(Authors)-$(RootNamespace)</DestDir>
+      <ReleaseDir Condition="'$(Configuration)' == 'Release'">$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)\SPT\user\mods\$(Authors)-$(RootNamespace)</ReleaseDir>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <OutputDLL Include="$(TargetPath)" />
+      <Config Include="$(TargetDir)\config\**\*" />
+      <PDB Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' != 'Release'" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(DestDir)" />
+    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(DestDir)" />
+    <Copy SourceFiles="@(Config)" DestinationFolder="$(DestDir)\config\%(RecursiveDir)" />
+    <Copy SourceFiles="@(PDB)" DestinationFolder="$(DestDir)" Condition="'$(Configuration)' != 'Release'" />
+
+    <!-- Release -->
+    <MakeDir Directories="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
+    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
+    <Copy SourceFiles="@(Config)" DestinationFolder="$(ReleaseDir)\config\%(RecursiveDir)" Condition="'$(Configuration)' == 'Release'" />
+    <ZipDirectory SourceDirectory="$(ReleaseDir)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
+  </Target>
+</Project>

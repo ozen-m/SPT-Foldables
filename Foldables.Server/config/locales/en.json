@@ -1,0 +1,14 @@
+{
+  // Server locales
+  "set-size": "Set {{name}} ({{id}}) folded size to: {{size}}",
+  "added-backpacks": "Added foldable properties to %s backpacks",
+  "added-vests": "Added foldable properties to %s vests",
+  "loaded successfully!": "loaded successfully!",
+
+  // Client locales
+  "Container is folded": "Container is folded",
+  "Item is folded and can't unfold in place": "Item is folded and can't unfold in place",
+  "Cannot fold the item now": "Cannot fold the item now",
+  "Cannot fold the container with items inside": "Cannot fold the container with items inside",
+  " (Folded)": " (Folded)"
+}
