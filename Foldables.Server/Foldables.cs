@@ -44,7 +44,7 @@ public class Foldables(
 
         var vestsItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && i.Properties.ArmorType == "None");
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && !i.Properties.Slots.Any());
         AddFoldableProperties(vestsItemTemplates, BaseClasses.VEST);
 
         CommonUtils.LogSuccess("loaded successfully!".Localize());

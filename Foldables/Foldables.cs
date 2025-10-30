@@ -11,7 +11,7 @@ using Foldables.Patches.Sizes;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.0")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.2")]
 public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
