@@ -14,6 +14,11 @@ public static class ItemHelper
 
 	public static void FoldItem(this Item item) => ItemUiContext.Instance.FoldItem(item);
 
+    /// <summary>
+    /// Fold Item with Delay. Delays only in raid
+    /// </summary>
+    public static void FoldItemWithDelay(this Item item, Callback callback = null) => ItemUiContext.Instance.FoldItemWithDelay(item, callback);
+
     public static void ForceFold(this Item item, bool? toFolded = null, Callback callback = null)
     {
         Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);

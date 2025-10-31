@@ -1,4 +1,5 @@
 ﻿using EFT;
+using Foldables.Utils;
 using SPT.Reflection.Patching;
 using System.Reflection;
 
@@ -17,9 +18,9 @@ public class StopProcessesPatch : ModulePatch
     [PatchPostfix]
     protected static void Postfix()
     {
-        if (FoldItemPatch.IsFolding)
+        if (ItemUiContextExtensions.IsFolding)
         {
-            FoldItemPatch.IsCancelled = true;
+            ItemUiContextExtensions.StopFolding();
         }
     }
 }

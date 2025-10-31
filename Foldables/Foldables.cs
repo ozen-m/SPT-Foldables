@@ -36,7 +36,7 @@ public class Foldables : BaseUnityPlugin
         // In raid
         new GetActionsPatch().Enable();
         new ActionsNamePatch().Enable();
-        new FoldItemPatch().Enable();
+        new CallToFoldItemPatch().Enable();
         new StopProcessesPatch().Enable();
         //new LootItemScalePatch().Enable();
 

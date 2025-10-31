@@ -1,7 +1,7 @@
-using System.Reflection;
 using EFT.InventoryLogic;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
+using System.Reflection;
 
 namespace Foldables.Patches.Operations;
 
@@ -10,20 +10,20 @@ namespace Foldables.Patches.Operations;
 /// </summary>
 public class FindLocationPatch : ModulePatch
 {
-	protected override MethodBase GetTargetMethod()
-	{
-		return typeof(StashGridClass).GetMethod(nameof(StashGridClass.TryFindLocationForItem));
-	}
+    protected override MethodBase GetTargetMethod()
+    {
+        return typeof(StashGridClass).GetMethod(nameof(StashGridClass.TryFindLocationForItem));
+    }
 
-	[PatchPrefix]
-	protected static bool Prefix(StashGridClass __instance, ref ItemAddress location, ref bool __result)
-	{
-		if (__instance.ParentItem.IsFoldableFolded())
-		{
-			location = null;
-			__result = false;
-			return false;
-		}
-		return true;
-	}
+    [PatchPrefix]
+    protected static bool Prefix(StashGridClass __instance, ref ItemAddress location, ref bool __result)
+    {
+        if (__instance.ParentItem.IsFoldableFolded())
+        {
+            location = null;
+            __result = false;
+            return false;
+        }
+        return true;
+    }
 }

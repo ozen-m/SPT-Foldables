@@ -8,16 +8,16 @@ namespace Foldables.Patches.Operations;
 
 public class SearchableViewPatches
 {
-	public void Enable()
-	{
-		new OnAddToSlotPatch().Enable();
-		new OnRemoveFromSlotPatch().Enable();
-		new SearchableItemViewShowPatch().Enable();
-	}
+    public void Enable()
+    {
+        new OnAddToSlotPatch().Enable();
+        new OnRemoveFromSlotPatch().Enable();
+        new SearchableItemViewShowPatch().Enable();
+    }
 }
 
 /// <summary>
-/// Unfold item on add to slot
+/// Unfold item on add to SearchableSlotView
 /// </summary>
 public class OnAddToSlotPatch : ModulePatch
 {
@@ -31,13 +31,13 @@ public class OnAddToSlotPatch : ModulePatch
     {
         if (args.Status == CommandStatus.Succeed && item.IsFoldableFolded())
         {
-            item.FoldItem();
+            item.FoldItemWithDelay();
         }
     }
 }
 
 /// <summary>
-/// Reopen grid when unfolding in slot
+/// Reopen grid when unfolding in SearchableSlotView
 /// </summary>
 public class OnRemoveFromSlotPatch : ModulePatch
 {
@@ -57,7 +57,7 @@ public class OnRemoveFromSlotPatch : ModulePatch
 }
 
 /// <summary>
-/// Prevent from opening the grid when item is folded
+/// Prevent from opening the grid when item is folded in SearchableSlotView
 /// </summary>
 public class SearchableItemViewShowPatch : ModulePatch
 {
