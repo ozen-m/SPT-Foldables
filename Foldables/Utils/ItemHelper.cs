@@ -12,20 +12,20 @@ public static class ItemHelper
 		return item is IFoldable foldableItem && foldableItem.Folded;
 	}
 
-	public static void ForceFold(this Item item, bool? toFolded = null, Callback callback = null)
-	{
-		Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
-		FoldableComponent foldableComponent = item.GetItemComponent<FoldableComponent>();
-		GStruct154<GClass3428> foldResult = InteractionsHandlerClass.Fold(foldableComponent, toFolded ?? (!foldableComponent.Folded), false);
-		if (foldableComponent.Item.Owner is TraderControllerClass traderController)
-		{
-			traderController.TryRunNetworkTransaction(foldResult, callback);
-		}
-	}
-
 	public static void FoldItem(this Item item) => ItemUiContext.Instance.FoldItem(item);
 
-	public static bool IsEmptyNonLinq(this Item item)
+    public static void ForceFold(this Item item, bool? toFolded = null, Callback callback = null)
+    {
+        Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
+        FoldableComponent foldableComponent = item.GetItemComponent<FoldableComponent>();
+        GStruct154<GClass3428> foldResult = InteractionsHandlerClass.Fold(foldableComponent, toFolded ?? (!foldableComponent.Folded), false);
+        if (foldableComponent.Item.Owner is TraderControllerClass traderController)
+        {
+            traderController.TryRunNetworkTransaction(foldResult, callback);
+        }
+    }
+
+    public static bool IsEmptyNonLinq(this Item item)
 	{
 		if (item is CompoundItem compoundItem)
 		{

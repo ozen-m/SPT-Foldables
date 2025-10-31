@@ -34,20 +34,24 @@ public class GetActionsPatch : ModulePatch
             TargetName = (isExamined ? lootItemName : "Unknown item".Localized()),
             Action = () =>
             {
+                rootItem.FoldItem();
                 owner.Player.CurrentManagedState.Pickup(true, () =>
                 {
-                    rootItem.ForceFold(null, (result) =>
+                    owner.Player.UpdateInteractionCast();
+                    if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
                     {
-                        if (result.Succeed)
-                        {
-                            owner.Player.UpdateInteractionCast();
-                        }
-                        if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
-                        {
-                            pickupStateClass.Pickup(false, null);
-                        }
-                    });
+                        pickupStateClass.Pickup(false, null);
+
+                        // Set back to default value
+                        pickupStateClass._timeForPikupAnimation = 0.6f;
+                    }
                 });
+                if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
+                {
+                    // Set delay for folding (TODO: add config)
+                    // Max 5 seconds (hardcoded by BSG)
+                    pickupStateClass._timeForPikupAnimation = 3f;
+                }
             },
             Disabled = (!foldableItem.Folded && !rootItem.IsEmptyNonLinq())
         });
@@ -61,7 +65,7 @@ public class GetActionsPatch : ModulePatch
                     action.Disabled = true;
                 }
             }
-            __result.SetIsFolded(value: true);
+            __result.SetIsFolded(true);
         }
     }
 }
