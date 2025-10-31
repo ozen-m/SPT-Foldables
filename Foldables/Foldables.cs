@@ -1,13 +1,13 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Foldables.Models.Items;
-using Foldables.Models.Templates;
 using Foldables.Patches.Debug;
 using Foldables.Patches.Mappings;
 using Foldables.Patches.Operations;
 using Foldables.Patches.Operations.InRaid;
 using Foldables.Patches.Sizes;
+using System.Linq;
 
 namespace Foldables;
 
@@ -36,6 +36,8 @@ public class Foldables : BaseUnityPlugin
         // In raid
         new GetActionsPatch().Enable();
         new ActionsNamePatch().Enable();
+        new FoldItemPatch().Enable();
+        new StopProcessesPatch().Enable();
         //new LootItemScalePatch().Enable();
 
         // Sizes
@@ -44,7 +46,14 @@ public class Foldables : BaseUnityPlugin
         new ImageRaycastPatch().Enable();
         new UpdateScalePatch().Enable();
 
+        // Mod compatibilities
+        if (Chainloader.PluginInfos.Keys.Contains("com.ozen.continuousloadammo"))
+        {
+            new InventoryScreenClosePatch().Enable();
+        }
+
         // Debug
         new DebugPatches().Enable();
+
     }
 }
