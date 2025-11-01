@@ -1,6 +1,6 @@
 {
   // Server locales
-  "set-size": "Set {{name}} ({{id}}) folded size to: {{size}}",
+  "set-properties": "Set {{name}} ({{id}}) folded size to: {{size}} and folding time to: {{time}}",
   "added-backpacks": "Added foldable properties to %s backpacks",
   "added-vests": "Added foldable properties to %s vests",
   "loaded successfully!": "loaded successfully!",

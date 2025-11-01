@@ -36,6 +36,8 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 
     public int SizeReduceDown => FoldableBackpackTemplateClass.SizeReduceDown;
 
+    public float FoldingTime => FoldableBackpackTemplateClass.FoldingTime;
+
     public string FoldedSlot => FoldableBackpackTemplateClass.FoldedSlot;
 
     public override int GetHashSum()

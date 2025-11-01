@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Foldables</AssemblyName>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <LangVersion>latest</LangVersion>
     <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
     <Authors>ozen</Authors>
@@ -97,6 +97,6 @@
     <!-- Release -->
     <MakeDir Directories="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
     <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
-    <ZipDirectory SourceDirectory="$(ReleaseDir)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(AssemblyName)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
+    <ZipDirectory SourceDirectory="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(AssemblyName)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
   </Target>
 </Project>

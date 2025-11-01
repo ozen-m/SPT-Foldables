@@ -1,11 +1,14 @@
 {
+	"MaxFoldingTime": 5,
 	"DebugLogs": true,
 	"Overrides": {
-		// Sample override for santa's backpack
+		 // Sample override for santa's backpack
 		"61b9e1aaef9a1b5d6a79899a": {
-			// Folded size
-			"width": 3,
-			"height": 3
+			"FoldedSize": {
+				"width": 3,
+				"height": 3
+			},
+			"FoldingTime": 5
 		}
 	}
 }

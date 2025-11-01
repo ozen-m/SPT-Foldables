@@ -3,5 +3,8 @@
 public interface IFoldable : GInterface389
 {
     bool Folded { get; }
+
     int SizeReduceDown { get; }
+
+    float FoldingTime { get; }
 }

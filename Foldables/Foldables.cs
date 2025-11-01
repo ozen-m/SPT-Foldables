@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.3")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.4")]
 public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
@@ -54,6 +54,5 @@ public class Foldables : BaseUnityPlugin
 
         // Debug
         new DebugPatches().Enable();
-
     }
 }

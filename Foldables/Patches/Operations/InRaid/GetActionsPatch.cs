@@ -50,7 +50,7 @@ public class GetActionsPatch : ModulePatch
                 {
                     // Set delay for folding (TODO: add config)
                     // Max 5 seconds (hardcoded by BSG)
-                    pickupStateClass._timeForPikupAnimation = 3f;
+                    pickupStateClass._timeForPikupAnimation = foldableItem.FoldingTime;
                 }
             },
             Disabled = (!foldableItem.Folded && !rootItem.IsEmptyNonLinq())
@@ -69,4 +69,3 @@ public class GetActionsPatch : ModulePatch
         }
     }
 }
-

@@ -23,7 +23,7 @@ public static class ItemUiContextExtensions
     /// </summary>
     public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, Callback callback = null)
     {
-        if (!GClass2340.InRaid || item is not IFoldable)
+        if (!GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0)
         {
             item.FoldItem();
             callback?.Succeed();
@@ -36,7 +36,7 @@ public static class ItemUiContextExtensions
         {
             StopFolding();
             _cancellationTokenSource = new();
-            _isActive = playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, 3f, inventoryController, itemUiContext.ContextInteractionsSwitcher, _cancellationTokenSource.Token, callback));
+            _isActive = playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, _cancellationTokenSource.Token, callback));
         }
         return;
     }

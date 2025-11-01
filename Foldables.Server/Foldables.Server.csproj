@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <OutputType>Library</OutputType>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>ozen</Authors>
     <!-- The two lines below will set the output path for the binaries -->
     <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
@@ -40,6 +40,6 @@
     <MakeDir Directories="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
     <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
     <Copy SourceFiles="@(Config)" DestinationFolder="$(ReleaseDir)\config\%(RecursiveDir)" Condition="'$(Configuration)' == 'Release'" />
-    <ZipDirectory SourceDirectory="$(ReleaseDir)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
+    <ZipDirectory SourceDirectory="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
   </Target>
 </Project>

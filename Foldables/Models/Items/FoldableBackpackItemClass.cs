@@ -36,6 +36,8 @@ public class FoldableBackpackItemClass : BackpackItemClass, IFoldable
 
     public int SizeReduceDown => FoldableBackpackTemplateClass.SizeReduceDown;
 
+    public float FoldingTime => FoldableBackpackTemplateClass.FoldingTime;
+
     public string FoldedSlot => FoldableBackpackTemplateClass.FoldedSlot;
 
     public override int GetHashSum()
