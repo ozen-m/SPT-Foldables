@@ -27,11 +27,11 @@ public class OnAddToSlotPatch : ModulePatch
     }
 
     [PatchPrefix]
-    protected static void Prefix(Item item, GEventArgs2 args)
+    protected static void Prefix(SearchableSlotView __instance, Item item, GEventArgs2 args)
     {
         if (args.Status == CommandStatus.Succeed && item.IsFoldableFolded())
         {
-            item.FoldItemWithDelay();
+            item.FoldItemWithDelay(__instance.ParentItemContext);
         }
     }
 }

@@ -6,35 +6,6 @@ using System.Reflection;
 
 namespace Foldables.Patches.Operations;
 
-public class ContextInteractionsPatches
-{
-    public void Enable()
-    {
-        new CloseDependentWindowsPatch().Enable();
-        new UnfoldOnOpenInteractionPatch().Enable();
-    }
-}
-
-/// <summary>
-/// Close the "open" grid window when folding an item
-/// </summary>
-public class CloseDependentWindowsPatch : ModulePatch
-{
-    protected override MethodBase GetTargetMethod()
-    {
-        return typeof(ContextInteractionsAbstractClass).GetMethod(nameof(ContextInteractionsAbstractClass.method_32));
-    }
-
-    [PatchPostfix]
-    protected static void Postfix(ContextInteractionsAbstractClass __instance)
-    {
-        if (__instance.Item_0 is IFoldable foldableItem && foldableItem.Folded)
-        {
-            __instance.ItemContextAbstractClass.CloseDependentWindows();
-        }
-    }
-}
-
 /// <summary>
 /// Unfold on opening a folded item
 /// </summary>
@@ -51,7 +22,7 @@ public class UnfoldOnOpenInteractionPatch : ModulePatch
     {
         if (__instance.Item_0.IsFoldableFolded())
         {
-            __instance.Item_0.FoldItemWithDelay((result) =>
+            __instance.Item_0.FoldItemWithDelay(__instance .ItemContextAbstractClass, (result) =>
             {
                 if (result.Succeed)
                 {

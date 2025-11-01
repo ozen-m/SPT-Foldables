@@ -4,10 +4,10 @@ using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
 using HarmonyLib;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading;
-using UnityEngine;
 
 namespace Foldables.Utils;
 
@@ -22,10 +22,13 @@ public static class ItemUiContextExtensions
     /// <summary>
     /// Fold Item with Delay. Delays only in raid
     /// </summary>
-    public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, Callback callback = null)
+    public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
     {
         if (!GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0)
         {
+            // Close the "open" grid window when item is folded
+            itemContextAbstractClass?.CloseDependentWindows();
+
             item.FoldItem();
             callback?.Succeed();
             return;
@@ -37,15 +40,16 @@ public static class ItemUiContextExtensions
         {
             StopFolding();
             _cancellationTokenSource = new();
-            playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, _cancellationTokenSource.Token, callback));
+            playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, itemContextAbstractClass, _cancellationTokenSource.Token, callback));
         }
         return;
     }
 
-    private static IEnumerator FoldingAction(Item item, float seconds, InventoryController inventoryController, ContextInteractionSwitcherClass interactionSwitcher, CancellationToken token, Callback callback = null)
+    private static IEnumerator FoldingAction(Item item, float seconds, InventoryController inventoryController, ContextInteractionSwitcherClass interactionSwitcher, ItemContextAbstractClass itemContextAbstractClass, CancellationToken token, Callback callback = null)
     {
         _activeCount++;
-        // Use LoadMagazine event for our UI
+
+        // Use LoadMagazineEvent for our UI
         IItemOwner owner = item.Owner;
         GEventArgs7 startFoldEvent = new(null, item, 1, seconds, CommandStatus.Begin, owner);
         GEventArgs7 stopFoldEvent = new(null, item, 1, seconds, CommandStatus.Succeed, owner);
@@ -56,25 +60,36 @@ public static class ItemUiContextExtensions
         {
             if (token.IsCancellationRequested)
             {
-                inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
-                callback?.Fail("Folding was cancelled.");
                 _activeCount--;
+                inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
+                callback?.Fail("Folding was cancelled");
                 yield break;
             }
             yield return null;
         }
-
+        _activeCount--;
         inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
+
+        // Final check before folding
         interactionSwitcher.Item_0_1 = item;
-        if (interactionSwitcher.IsInteractive(EItemInfoButton.Fold).Succeed) // Final check before folding
+        var foldCheck = interactionSwitcher.IsInteractive(EItemInfoButton.Fold);
+        if (foldCheck.Succeed) 
         {
+            // Close the "open" grid window when item is folded
+            if (itemContextAbstractClass == null)
+            {
+                throw new ArgumentException("Called for delayed folding but itemContextAbstractClass is null");
+            }
+            itemContextAbstractClass.CloseDependentWindows();
+
             item.FoldItem();
             callback?.Succeed();
-            _activeCount--;
-            yield break;
         }
-        callback?.Fail("Fold check failed.");
-        _activeCount--;
+        else
+        {
+            NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
+            callback?.Fail("Fold check failed");
+        }
     }
 
     public static void StopFolding()

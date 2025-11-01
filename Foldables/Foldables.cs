@@ -23,9 +23,9 @@ public class Foldables : BaseUnityPlugin
         new MappingsPatches().Enable();
 
         // Operations
-        new ContextInteractionsPatches().Enable();
         new SearchableViewPatches().Enable();
         new SoundPatches().Enable();
+        new UnfoldOnOpenInteractionPatch().Enable();
         new InteractionSwitcherPatch().Enable();
         new OnDragPatch().Enable();
         new ItemNamePatch().Enable();
