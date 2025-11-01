@@ -8,8 +8,8 @@ using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Inventory;
 using SPTarkov.Server.Core.Models.Utils;
 using SPTarkov.Server.Core.Services;
-using SPTarkov.Server.Core.Utils;
 using System.Reflection;
+using System.Text;
 
 namespace Foldables;
 
@@ -17,7 +17,7 @@ namespace Foldables;
 public class Foldables(
     ISptLogger<Foldables> logger,
     ModHelper modHelper,
-    JsonUtil jsonUtil,
+    CustomJsonUtil customJsonUtil,
     ItemHelper itemHelper,
     DatabaseService databaseService,
     ServerLocalisationService serverLocalisationService
@@ -34,6 +34,7 @@ public class Foldables(
         string configPath = System.IO.Path.Combine(modPath, "config");
         LoadConfig(System.IO.Path.Combine(configPath, "config.json"));
         LoadLocales(System.IO.Path.Combine(configPath, "locales"));
+        ValidateConfig();
 
         Dictionary<MongoId, TemplateItem> items = databaseService.GetItems();
 
@@ -59,9 +60,7 @@ public class Foldables(
         }
         try
         {
-            ModConfig = jsonUtil.DeserializeFromFile<ModConfig>(configFilePath);
-            ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 1);
-            ModConfig.MaxFoldingTime = Math.Max(ModConfig.MinFoldingTime, ModConfig.MaxFoldingTime);
+            ModConfig = customJsonUtil.DeserializeFromFile<ModConfig>(configFilePath, true);
         }
         catch (Exception ex)
         {
@@ -83,7 +82,7 @@ public class Foldables(
             foreach (string localeFile in localeFiles)
             {
                 string language = System.IO.Path.GetFileNameWithoutExtension(localeFile);
-                locales[language] = jsonUtil.DeserializeFromFile<Dictionary<string, string>>(localeFile);
+                locales[language] = customJsonUtil.DeserializeFromFile<Dictionary<string, string>>(localeFile);
             }
         }
         catch (Exception ex)
@@ -112,6 +111,45 @@ public class Foldables(
             {
                 CommonUtils.LogWarning("Failed to add locale for language: " + lang + ", language not found in the SPT Database");
             }
+        }
+    }
+
+    private static void ValidateConfig()
+    {
+        ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 1);
+        ModConfig.MaxFoldingTime = Math.Max(ModConfig.MinFoldingTime, ModConfig.MaxFoldingTime);
+
+        StringBuilder sb = new();
+        if (ModConfig.ExtensionData.Count > 0)
+        {
+            sb.Append("Found unknown fields under config.json:");
+            foreach (var obj in ModConfig.ExtensionData)
+            {
+                sb.Append(' ').Append(obj.ToString());
+            }
+        }
+        foreach (var (key, value) in ModConfig.Overrides)
+        {
+            if (value.ExtensionData.Count > 0)
+            {
+                sb.Append("; Found unknown fields under Overrides for item ").Append(key).Append(':');
+                foreach (var obj in value.ExtensionData)
+                {
+                    sb.Append(' ').Append(obj.ToString());
+                }
+            }
+            if (value.ItemSize.ExtensionData.Count > 0)
+            {
+                sb.Append("; Found unknown fields under FoldedSize for item ").Append(key).Append(':');
+                foreach (var obj in value.ItemSize.ExtensionData)
+                {
+                    sb.Append(' ').Append(obj.ToString());
+                }
+            }
+        }
+        if (sb.Length > 0)
+        {
+            CommonUtils.LogWarning(sb.ToString());
         }
     }
 
