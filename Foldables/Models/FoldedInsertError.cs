@@ -13,6 +13,6 @@ public class FoldedInsertError(Item item) : InventoryError
 
     public override string GetLocalizedDescription()
     {
-        return "Container is folded".Localized(null);
+        return "Container is folded".Localized();
     }
 }

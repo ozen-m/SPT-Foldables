@@ -27,10 +27,7 @@ public class ImageRaycastPatch : ModulePatch
         if (__instance.Item is IFoldable foldableItem)
         {
             Image mainImage = mainImageField(__instance);
-            if (mainImage.raycastTarget)
-            {
-                mainImage.raycastTarget = false;
-            }
+            mainImage.raycastTarget = false;
         }
     }
 }

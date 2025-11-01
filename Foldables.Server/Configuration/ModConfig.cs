@@ -13,7 +13,7 @@ public class ModConfig
     public double MaxFoldingTime { get; set; } = 5;
 
     [JsonPropertyName("DebugLogs")]
-    public bool DebugLogs { get; set; } = true;
+    public bool DebugLogs { get; set; } = false;
 
     [JsonPropertyName("Overrides")]
     public Dictionary<MongoId, OverrideProperties> Overrides { get; set; } = [];

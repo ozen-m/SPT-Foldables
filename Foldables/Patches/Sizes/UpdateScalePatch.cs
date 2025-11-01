@@ -11,7 +11,7 @@ public class UpdateScalePatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(GridItemView).GetMethod("UpdateScale");
+        return typeof(GridItemView).GetMethod(nameof(GridItemView.UpdateScale));
     }
 
     [PatchPostfix]
@@ -24,6 +24,8 @@ public class UpdateScalePatch : ModulePatch
             Vector2 sizeDelta = ___MainImage.rectTransform.sizeDelta;
             float x = sizeDelta.x;
             float y = sizeDelta.y;
+
+            // Calculate scale and multiply to preserve aspect ratio
             float scale = Mathf.Min(itemViewSizeDelta.x / x, itemViewSizeDelta.y / y);
             ___MainImage.rectTransform.sizeDelta = new Vector2(x * scale, y * scale);
         }

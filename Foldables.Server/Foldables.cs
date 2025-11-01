@@ -54,10 +54,6 @@ public class Foldables(
 
     private void LoadConfig(string configFilePath)
     {
-        if (!File.Exists(configFilePath))
-        {
-            throw new FileNotFoundException(configFilePath);
-        }
         try
         {
             ModConfig = customJsonUtil.DeserializeFromFile<ModConfig>(configFilePath, true);
@@ -65,7 +61,7 @@ public class Foldables(
         catch (Exception ex)
         {
             CommonUtils.LogError(ex.ToString());
-            CommonUtils.LogError("Exception while trying to load configuration file, using default values. Misconfigured config.json? ");
+            CommonUtils.LogError("Exception while trying to load configuration file, using default values. Misconfigured config.json?");
         }
     }
 
@@ -74,7 +70,7 @@ public class Foldables(
         Dictionary<string, Dictionary<string, string>> locales = [];
         if (!Directory.Exists(localesPath))
         {
-            throw new FileNotFoundException("Missing locales directory: " + localesPath);
+            throw new FileNotFoundException($"Missing locales directory: {localesPath}");
         }
         try
         {
@@ -92,7 +88,8 @@ public class Foldables(
         }
         if (locales.Count < 1)
         {
-            CommonUtils.LogWarning("No locale files found under: " + localesPath);
+            CommonUtils.LogError($"No locale files found under: {localesPath}");
+            return;
         }
         foreach (var (lang, locale) in locales)
         {
@@ -109,7 +106,7 @@ public class Foldables(
             }
             else
             {
-                CommonUtils.LogWarning("Failed to add locale for language: " + lang + ", language not found in the SPT Database");
+                CommonUtils.LogWarning($"Failed to add locale for language: {lang}, language not found in the SPT Database");
             }
         }
     }
@@ -153,7 +150,7 @@ public class Foldables(
         }
     }
 
-    private static void AddFoldableProperties(IEnumerable<TemplateItem> itemTemplates, MongoId baseClass)
+    protected void AddFoldableProperties(IEnumerable<TemplateItem> itemTemplates, MongoId baseClass)
     {
         var (minGridCount, maxGridCount) = GetMinMaxGridCount(itemTemplates.Select(i => i.Properties));
         foreach (TemplateItem itemTemplate in itemTemplates)
@@ -177,7 +174,7 @@ public class Foldables(
             CommonUtils.LogInfo("added-vests".Localize(itemTemplates.Count()));
     }
 
-    private static double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)
+    protected double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)
     {
         if (ModConfig.Overrides.TryGetValue(itemId, out OverrideProperties overrideProperties) && overrideProperties.FoldingTime.HasValue)
             return overrideProperties.FoldingTime.Value;
@@ -193,22 +190,7 @@ public class Foldables(
         }
     }
 
-    private static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
-    {
-        int min = int.MaxValue;
-        int max = int.MinValue;
-
-        foreach (TemplateItemProperties itemProperties in itemsProperties)
-        {
-            int gridCount = GetGridCount(itemProperties);
-            if (gridCount < min) min = gridCount;
-            if (gridCount > max) max = gridCount;
-        }
-
-        return (min, max);
-    }
-
-    private static ItemSize GetReduceCellSize(MongoId itemId, int gridCount, TemplateItemProperties properties, MongoId baseClass)
+    protected ItemSize GetReduceCellSize(MongoId itemId, int gridCount, TemplateItemProperties properties, MongoId baseClass)
     {
         ItemSize foldedCellSize;
         if (ModConfig.Overrides.TryGetValue(itemId, out OverrideProperties overrideProperties) && overrideProperties.ItemSize != null)
@@ -231,10 +213,7 @@ public class Foldables(
         };
     }
 
-    private static int GetGridCount(TemplateItemProperties properties) =>
-        properties.Grids.Sum(g => g.Properties.CellsH * g.Properties.CellsV).GetValueOrDefault();
-
-    private static ItemSize GetFoldedBackpackCellSize(int gridCount) =>
+    protected ItemSize GetFoldedBackpackCellSize(int gridCount) =>
         gridCount switch
         {
             <= 15 => new() { Width = 1, Height = 2 },
@@ -244,7 +223,7 @@ public class Foldables(
             _ => new() { Width = 3, Height = 3 }
         };
 
-    private static ItemSize GetFoldedVestCellSize(int gridCount) =>
+    protected ItemSize GetFoldedVestCellSize(int gridCount) =>
         gridCount switch
         {
             <= 15 => new() { Width = 1, Height = 2 },
@@ -252,10 +231,28 @@ public class Foldables(
             _ => new() { Width = 2, Height = 3 }
         };
 
-    private static ItemSize GetCellSize(TemplateItemProperties properties) =>
+    public static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
+    {
+        int min = int.MaxValue;
+        int max = int.MinValue;
+
+        foreach (TemplateItemProperties itemProperties in itemsProperties)
+        {
+            int gridCount = GetGridCount(itemProperties);
+            if (gridCount < min) min = gridCount;
+            if (gridCount > max) max = gridCount;
+        }
+
+        return (min, max);
+    }
+
+    public static ItemSize GetCellSize(TemplateItemProperties properties) =>
         new()
         {
             Width = properties.Width.GetValueOrDefault() - properties.SizeReduceRight.GetValueOrDefault(),
             Height = properties.Height.GetValueOrDefault() - (int)(properties.ExtensionData.GetValueOrDefault("SizeReduceDown") ?? 0)
         };
+
+    public static int GetGridCount(TemplateItemProperties properties) =>
+        properties.Grids.Sum(g => g.Properties.CellsH * g.Properties.CellsV).GetValueOrDefault();
 }

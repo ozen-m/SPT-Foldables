@@ -8,7 +8,7 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 	[GAttribute26]
 	public readonly FoldableComponent Foldable;
 
-	public FoldableVestTemplateClass FoldableBackpackTemplateClass { get; protected set; }
+	public FoldableVestTemplateClass FoldableBackpackTemplateClass { get; }
 
 	public FoldableVestItemClass(string id, FoldableVestTemplateClass template)
 		: base(id, template)

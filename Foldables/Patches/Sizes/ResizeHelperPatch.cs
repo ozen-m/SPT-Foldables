@@ -69,4 +69,3 @@ public class ResizeHelperPatch : ModulePatch
         return false;
     }
 }
-

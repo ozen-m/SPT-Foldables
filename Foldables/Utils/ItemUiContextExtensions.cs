@@ -13,10 +13,11 @@ namespace Foldables.Utils;
 
 public static class ItemUiContextExtensions
 {
-    public static bool IsFolding => _isActive != null;
-    private static Coroutine _isActive;
+    private static int _activeCount;
     private static CancellationTokenSource _cancellationTokenSource;
     private static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> _inventoryControllerField = AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
+
+    public static bool IsFolding => _activeCount > 0;
 
     /// <summary>
     /// Fold Item with Delay. Delays only in raid
@@ -36,13 +37,14 @@ public static class ItemUiContextExtensions
         {
             StopFolding();
             _cancellationTokenSource = new();
-            _isActive = playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, _cancellationTokenSource.Token, callback));
+            playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, _cancellationTokenSource.Token, callback));
         }
         return;
     }
 
     private static IEnumerator FoldingAction(Item item, float seconds, InventoryController inventoryController, ContextInteractionSwitcherClass interactionSwitcher, CancellationToken token, Callback callback = null)
     {
+        _activeCount++;
         // Use LoadMagazine event for our UI
         IItemOwner owner = item.Owner;
         GEventArgs7 startFoldEvent = new(null, item, 1, seconds, CommandStatus.Begin, owner);
@@ -56,6 +58,7 @@ public static class ItemUiContextExtensions
             {
                 inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
                 callback?.Fail("Folding was cancelled.");
+                _activeCount--;
                 yield break;
             }
             yield return null;
@@ -67,9 +70,11 @@ public static class ItemUiContextExtensions
         {
             item.FoldItem();
             callback?.Succeed();
+            _activeCount--;
             yield break;
         }
         callback?.Fail("Fold check failed.");
+        _activeCount--;
     }
 
     public static void StopFolding()

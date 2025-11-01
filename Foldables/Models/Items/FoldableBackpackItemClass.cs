@@ -8,7 +8,7 @@ public class FoldableBackpackItemClass : BackpackItemClass, IFoldable
     [GAttribute26]
     public readonly FoldableComponent Foldable;
 
-    public FoldableBackpackTemplateClass FoldableBackpackTemplateClass { get; protected set; }
+    public FoldableBackpackTemplateClass FoldableBackpackTemplateClass { get; }
 
     public FoldableBackpackItemClass(string id, FoldableBackpackTemplateClass template)
         : base(id, template)
@@ -42,7 +42,7 @@ public class FoldableBackpackItemClass : BackpackItemClass, IFoldable
 
     public override int GetHashSum()
     {
-        var hashSum = base.GetHashSum();
+        int hashSum = base.GetHashSum();
         if (Foldable != null)
         {
             hashSum = hashSum * 27 + Foldable.Folded.GetHashCode();
@@ -50,4 +50,3 @@ public class FoldableBackpackItemClass : BackpackItemClass, IFoldable
         return hashSum;
     }
 }
-

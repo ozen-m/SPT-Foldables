@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using BepInEx.Bootstrap;
-using BepInEx.Configuration;
 using BepInEx.Logging;
 using Foldables.Patches.Debug;
 using Foldables.Patches.Mappings;
@@ -15,12 +14,10 @@ namespace Foldables;
 public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
-    public static ConfigEntry<bool> Enabled;
 
     protected void Awake()
     {
         LogSource = Logger;
-        Enabled = Config.Bind("General", "Enabled", true, new ConfigDescription("Enabled", null, new ConfigurationManagerAttributes() { Order = 0 }));
 
         // Mappings
         new MappingsPatches().Enable();

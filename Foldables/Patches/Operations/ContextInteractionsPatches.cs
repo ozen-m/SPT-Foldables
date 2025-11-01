@@ -56,13 +56,13 @@ public class UnfoldOnOpenInteractionPatch : ModulePatch
                 if (result.Succeed)
                 {
                     __instance.Action_6();
-                    if (__instance.Item_0 is not CompoundItem item)
+                    if (__instance.Item_0 is CompoundItem item)
                     {
-                        UnityEngine.Debug.LogError("Trying to open an item which is not a CompoundItem!");
+                        __instance.ItemUiContext_1.OpenItem(item, __instance.ItemContextAbstractClass);
                     }
                     else
                     {
-                        __instance.ItemUiContext_1.OpenItem(item, __instance.ItemContextAbstractClass);
+                        UnityEngine.Debug.LogError("Trying to open an item which is not a CompoundItem!");
                     }
                 }
             });
