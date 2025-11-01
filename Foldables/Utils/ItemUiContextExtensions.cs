@@ -87,8 +87,8 @@ public static class ItemUiContextExtensions
         }
         else
         {
-            NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
-            callback?.Fail("Fold check failed");
+            NotificationManagerClass.DisplayWarningNotification(foldCheck.Error.Localized());
+            callback?.Fail(foldCheck.Error);
         }
     }
 
