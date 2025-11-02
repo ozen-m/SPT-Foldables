@@ -1,5 +1,7 @@
+using Comfort.Common;
 using EFT;
 using EFT.InventoryLogic;
+using EFT.UI;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
@@ -34,24 +36,32 @@ public class GetActionsPatch : ModulePatch
             TargetName = (isExamined ? lootItemName : "Unknown item".Localized()),
             Action = () =>
             {
-                rootItem.FoldItem();
-                owner.Player.CurrentManagedState.Pickup(true, () =>
+                if (owner.Player.CurrentState is not IdleStateClass)
                 {
-                    owner.Player.UpdateInteractionCast();
-                    if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
-                    {
-                        pickupStateClass.Pickup(false, null);
+                    NotificationManagerClass.DisplayWarningNotification("Cannot fold item while moving".Localized());
+                    return;
+                }
 
-                        // Set back to default value
-                        pickupStateClass._timeForPikupAnimation = 0.6f;
+                var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
+                GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+
+                owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
+                {
+                    // Might appear that the operation failed (due to delay in callback) so do not simulate
+                    if (successful)
+                    {
+                        controller.TryRunNetworkTransaction(foldingResult, (_) =>
+                        {
+                            // "Take" action missing unless forced to update interactions
+                            owner.InteractionsChangedHandler();
+                        });
+                        Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
+                    }
+                    else
+                    {
+                        foldingResult.Value.RollBack();
                     }
                 });
-                if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
-                {
-                    // Set delay for folding (TODO: add config)
-                    // Max 5 seconds (hardcoded by BSG)
-                    pickupStateClass._timeForPikupAnimation = foldableItem.FoldingTime;
-                }
             },
             Disabled = (!foldableItem.Folded && !rootItem.IsEmptyNonLinq())
         });

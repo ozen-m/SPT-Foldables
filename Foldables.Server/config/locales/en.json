@@ -10,5 +10,6 @@
   "Item is folded and can't unfold in place": "Item is folded and can't unfold in place",
   "Cannot fold the item now": "Cannot fold the item now",
   "Cannot fold the container with items inside": "Cannot fold the container with items inside",
+  "Cannot fold item while moving": "Cannot fold item while moving",
   " (Folded)": " (Folded)"
 }

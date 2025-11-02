@@ -35,9 +35,9 @@ public static class ItemUiContextExtensions
         }
 
         var inventoryController = _inventoryControllerField(itemUiContext);
-        inventoryController.StopProcesses();
         if (inventoryController != null && inventoryController is Player.PlayerInventoryController playerInventoryController)
         {
+            inventoryController.StopProcesses();
             StopFolding();
             _cancellationTokenSource = new();
             playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext.ContextInteractionsSwitcher, itemContextAbstractClass, _cancellationTokenSource.Token, callback));
