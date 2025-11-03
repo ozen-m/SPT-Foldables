@@ -1,4 +1,4 @@
-using Foldables.Configuration;
+using Foldables.Models;
 using Foldables.Utils;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
@@ -113,9 +113,23 @@ public class Foldables(
 
     private static void ValidateConfig()
     {
+        // Folding times
         ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 1);
         ModConfig.MaxFoldingTime = Math.Max(ModConfig.MinFoldingTime, ModConfig.MaxFoldingTime);
 
+        // Folded cell sizes
+        ModConfig.BackpackFoldedCellSizes = [.. ModConfig.BackpackFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        ModConfig.VestFoldedCellSizes = [.. ModConfig.VestFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        if (!ModConfig.BackpackFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        {
+            throw new InvalidDataException($"Default CellSize not found for `BackpackFoldedCellSizes`");
+        }
+        if (!ModConfig.VestFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        {
+            throw new InvalidDataException($"Default CellSize not found for `VestFoldedCellSizes`");
+        }
+
+        // Unknown fields
         StringBuilder sb = new();
         if (ModConfig.ExtensionData.Count > 0)
         {
@@ -195,16 +209,12 @@ public class Foldables(
         ItemSize foldedCellSize;
         if (ModConfig.Overrides.TryGetValue(itemId, out OverrideProperties overrideProperties) && overrideProperties.ItemSize != null)
             foldedCellSize = overrideProperties.ItemSize;
-        else if (baseClass == BaseClasses.BACKPACK)
-            foldedCellSize = GetFoldedBackpackCellSize(gridCount);
-        else if (baseClass == BaseClasses.VEST)
-            foldedCellSize = GetFoldedVestCellSize(gridCount);
         else
-            throw new ArgumentException($"Cannot get reduced cell size for unrecognized base class: {baseClass}");
+            foldedCellSize = GetFoldedCellSize(gridCount, baseClass);
 
         if (properties.Width > properties.Height)
         {
-            foldedCellSize.Swap();
+            foldedCellSize = foldedCellSize.Swap();
         }
         return new ItemSize
         {
@@ -213,23 +223,25 @@ public class Foldables(
         };
     }
 
-    protected ItemSize GetFoldedBackpackCellSize(int gridCount) =>
-        gridCount switch
-        {
-            <= 15 => new() { Width = 1, Height = 2 },
-            <= 24 => new() { Width = 2, Height = 2 },
-            <= 34 => new() { Width = 2, Height = 3 },
-            <= 42 => new() { Width = 2, Height = 4 },
-            _ => new() { Width = 3, Height = 3 }
-        };
+    protected ItemSize GetFoldedCellSize(int gridCount, MongoId baseClass)
+    {
+        CellSizeRange[] foldedCellSizes;
+        if (baseClass == BaseClasses.BACKPACK)
+            foldedCellSizes = ModConfig.BackpackFoldedCellSizes;
+        else if (baseClass == BaseClasses.VEST)
+            foldedCellSizes = ModConfig.VestFoldedCellSizes;
+        else
+            throw new ArgumentException($"Cannot get folded cell size for unrecognized base class: {baseClass}");
 
-    protected ItemSize GetFoldedVestCellSize(int gridCount) =>
-        gridCount switch
+        foreach (var cellSizeRange in foldedCellSizes)
         {
-            <= 15 => new() { Width = 1, Height = 2 },
-            <= 24 => new() { Width = 1, Height = 3 },
-            _ => new() { Width = 2, Height = 3 }
-        };
+            if (gridCount <= cellSizeRange.MaxGridCount)
+            {
+                return cellSizeRange.CellSize;
+            }
+        }
+        return foldedCellSizes[0].CellSize;
+    }
 
     public static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
     {

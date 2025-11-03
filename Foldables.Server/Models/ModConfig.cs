@@ -1,0 +1,28 @@
+using SPTarkov.Server.Core.Models.Common;
+using System.Text.Json.Serialization;
+
+namespace Foldables.Models;
+
+public record ModConfig
+{
+    [JsonPropertyName("MinFoldingTime")]
+    public double MinFoldingTime { get; set; } = 1;
+
+    [JsonPropertyName("MaxFoldingTime")]
+    public double MaxFoldingTime { get; set; } = 5;
+
+    [JsonPropertyName("DebugLogs")]
+    public bool DebugLogs { get; set; } = false;
+
+    [JsonPropertyName("BackpackFoldedCellSizes")]
+    public CellSizeRange[] BackpackFoldedCellSizes { get; set; }
+
+    [JsonPropertyName("VestFoldedCellSizes")]
+    public CellSizeRange[] VestFoldedCellSizes { get; set; }
+
+    [JsonPropertyName("Overrides")]
+    public Dictionary<MongoId, OverrideProperties> Overrides { get; set; } = [];
+
+    [JsonExtensionData]
+    public Dictionary<string, object> ExtensionData { get; set; } = [];
+}

@@ -10,5 +10,71 @@
 			},
 			"FoldingTime": 5
 		}
-	}
+	},
+
+	// Advanced configurations
+	"BackpackFoldedCellSizes": [
+		{
+			"MaxGridCount": 15,
+			"CellSize": {
+				"width": 1,
+				"height": 2
+			}
+		},
+		{
+			"MaxGridCount": 24,
+			"CellSize": {
+				"width": 2,
+				"height": 2
+			}
+		},
+		{
+			"MaxGridCount": 34,
+			"CellSize": {
+				"width": 2,
+				"height": 3
+			}
+		},
+		{
+			"MaxGridCount": 42,
+			"CellSize": {
+				"width": 2,
+				"height": 4
+			}
+		},
+		{
+			// MaxGridCount must be 0 for default cell size
+			"MaxGridCount": 0,
+			// Default cell size, for gridcount > 42
+			"CellSize": {
+				"width": 3,
+				"height": 3
+			}
+		}
+	],
+	"VestFoldedCellSizes": [
+		{
+			"MaxGridCount": 15,
+			"CellSize": {
+				"width": 1,
+				"height": 2
+			}
+		},
+		{
+			"MaxGridCount": 24,
+			"CellSize": {
+				"width": 1,
+				"height": 3
+			}
+		},
+		{
+			// MaxGridCount must be 0 for default cell size
+			"MaxGridCount": 0,
+			// Default cell size, for gridcount > 24
+			"CellSize": {
+				"width": 2,
+				"height": 3
+			}
+		}
+	]
 }

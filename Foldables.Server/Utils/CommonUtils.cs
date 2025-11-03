@@ -1,4 +1,4 @@
-using Foldables.Configuration;
+using Foldables.Models;
 using SPTarkov.Server.Core.Helpers;
 using SPTarkov.Server.Core.Models.Spt.Inventory;
 using SPTarkov.Server.Core.Models.Utils;
@@ -43,10 +43,7 @@ public static class CommonUtils
         }
     }
 
-    public static void Swap(this ItemSize itemSize)
-    {
-        (itemSize.Width, itemSize.Height) = (itemSize.Height, itemSize.Width);
-    }
+    public static ItemSize Swap(this ItemSize itemSize) => new() { Width = itemSize.Height, Height = itemSize.Width };
 
     public static string Localize(this string key, object args = null)
     {
