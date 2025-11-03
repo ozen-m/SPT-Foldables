@@ -8,12 +8,12 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 	[GAttribute26]
 	public readonly FoldableComponent Foldable;
 
-	public FoldableVestTemplateClass FoldableBackpackTemplateClass { get; }
+	public FoldableVestTemplateClass FoldableVestTemplateClass { get; }
 
 	public FoldableVestItemClass(string id, FoldableVestTemplateClass template)
 		: base(id, template)
 	{
-		FoldableBackpackTemplateClass = template;
+		FoldableVestTemplateClass = template;
 		if (template.Foldable)
 		{
 			Foldable = new FoldableComponent(this, template);
@@ -34,11 +34,11 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 
     public int SizeReduceRight => Foldable.SizeReduceRight;
 
-    public int SizeReduceDown => FoldableBackpackTemplateClass.SizeReduceDown;
+    public int SizeReduceDown => FoldableVestTemplateClass.SizeReduceDown;
 
-    public float FoldingTime => FoldableBackpackTemplateClass.FoldingTime;
+    public float FoldingTime => FoldableVestTemplateClass.FoldingTime;
 
-    public string FoldedSlot => FoldableBackpackTemplateClass.FoldedSlot;
+    public string FoldedSlot => FoldableVestTemplateClass.FoldedSlot;
 
     public override int GetHashSum()
 	{
