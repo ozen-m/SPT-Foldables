@@ -25,7 +25,7 @@ public class ResizeHelperPatch : ModulePatch
         }
         Item item2 = resizeAction == InteractionsHandlerClass.EResizeAction.Fold || resizeAction == InteractionsHandlerClass.EResizeAction.Unfold ? item : location.Container.ParentItem;
         GInterface407 gInterface = default(GStruct424);
-        while (item2 is CompoundItem compoundItem && (compoundItem is Weapon || compoundItem is Mod || compoundItem is IFoldable) && compoundItem.Parent is not GClass3390) // The only changed line
+        while (item2 is CompoundItem compoundItem && (compoundItem is Weapon || compoundItem is Mod || compoundItem is IFoldable) && compoundItem.Parent is not GClass3390)
         {
             if (compoundItem.Parent is GClass3393)
             {
@@ -63,7 +63,9 @@ public class ResizeHelperPatch : ModulePatch
                     list.Add(compoundItem);
                 }
             }
-            item2 = compoundItem.Parent.Container.ParentItem;
+            // Don't check parent item if IFoldable
+            // Double check for side effects
+            item2 = compoundItem is IFoldable ? null : compoundItem.Parent.Container.ParentItem;
         }
         __result = new GClass3416(item, location, resizeAction, list, gInterface);
         return false;
