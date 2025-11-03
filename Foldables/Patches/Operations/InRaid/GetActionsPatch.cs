@@ -38,7 +38,7 @@ public class GetActionsPatch : ModulePatch
             {
                 if (owner.Player.CurrentState is not IdleStateClass)
                 {
-                    NotificationManagerClass.DisplayWarningNotification("Cannot fold item while moving".Localized());
+                    NotificationManagerClass.DisplayWarningNotification("Cannot fold the item while moving".Localized());
                     return;
                 }
 

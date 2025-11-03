@@ -7,15 +7,15 @@ using HarmonyLib;
 using System.Collections;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Foldables.Utils;
 
 public static class ItemUiContextExtensions
 {
-    private static int _activeCount;
+    public static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> InventoryControllerField = AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
     private static CancellationTokenSource _cancellationTokenSource;
-    private static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> _inventoryControllerField = AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
-    private static readonly AccessTools.FieldRef<ItemUiContext, TraderControllerClass> _traderControllerClassField = AccessTools.FieldRefAccess<ItemUiContext, TraderControllerClass>("traderControllerClass");
+    private static int _activeCount;
 
     public static bool IsFolding => _activeCount > 0;
 
@@ -30,8 +30,8 @@ public static class ItemUiContextExtensions
         }
         Singleton<GUISounds>.Instance.PlayUISound(item is IFoldable ? EUISoundType.TacticalClothingApply : EUISoundType.MenuStock);
         GStruct154<GClass3428> foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
-        var traderControllerClass = _traderControllerClassField(itemUiContext);
-        traderControllerClass.TryRunNetworkTransaction(foldEvent, callback);
+        var inventoryController = InventoryControllerField(itemUiContext);
+        inventoryController.TryRunNetworkTransaction(foldEvent, callback);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public static class ItemUiContextExtensions
             return;
         }
 
-        var inventoryController = _inventoryControllerField(itemUiContext);
+        var inventoryController = InventoryControllerField(itemUiContext);
         if (inventoryController is Player.PlayerInventoryController playerInventoryController)
         {
             inventoryController.StopProcesses();
@@ -56,6 +56,15 @@ public static class ItemUiContextExtensions
             _cancellationTokenSource = new();
             playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext, itemContextAbstractClass, _cancellationTokenSource.Token, callback));
         }
+    }
+
+    public static async Task<bool> ShowSpillAndFoldDialog(this ItemUiContext itemUiContext, Item item)
+    {
+        var inventoryController = InventoryControllerField(itemUiContext);
+        var itemName = inventoryController.Examined(item) ? item.ShortName : "Unknown item";
+        var description = string.Format("Do you want to spill the contents of {0} and fold?".Localized(), itemName.Localized());
+
+        return await itemUiContext.ShowMessageWindow(out var _, description, null, true);
     }
 
     private static IEnumerator FoldingAction(Item item, float seconds, InventoryController inventoryController, ItemUiContext itemUiContext, ItemContextAbstractClass itemContextAbstractClass, CancellationToken token, Callback callback = null)
@@ -69,7 +78,7 @@ public static class ItemUiContextExtensions
         inventoryController.RaiseLoadMagazineEvent(startFoldEvent);
 
         Stopwatch timer = Stopwatch.StartNew();
-        while (seconds > timer.Elapsed.TotalSeconds)
+        while (timer.Elapsed.TotalSeconds < seconds)
         {
             if (token.IsCancellationRequested)
             {
@@ -92,7 +101,7 @@ public static class ItemUiContextExtensions
             // Close the "open" grid window when item is folded
             if (itemContextAbstractClass == null)
             {
-                Foldables.LogSource.LogWarning("Called for delayed folding but itemContextAbstractClass is null");
+                Foldables.LogSource.LogWarning("ItemUiContextExtensions::FoldingAction Called for delayed folding but itemContextAbstractClass is null");
             }
             itemContextAbstractClass?.CloseDependentWindows();
 

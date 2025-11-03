@@ -31,10 +31,12 @@ public class InteractionSwitcherPatch : ModulePatch
 
         if (__result.Failed && (button == EItemInfoButton.Fold || button == EItemInfoButton.Unfold))
         {
+            // Change failed result from `stock` to `item`
             __result = foldItemFail;
         }
         else if (button == EItemInfoButton.Open && __instance.Item_0_1.IsFoldableFolded())
         {
+            // If item can't unfold, then fail opening
             if (__instance.IsInteractive(EItemInfoButton.Unfold).Failed)
             {
                 __result = openContainerFail;
@@ -42,7 +44,15 @@ public class InteractionSwitcherPatch : ModulePatch
         }
         else if (button == EItemInfoButton.Fold && !__instance.Item_0_1.IsEmptyNonLinq())
         {
-            __result = itemsInsideFail;
+            // If can spill contents, do not fail
+            if (__instance.Item_0_1.TryMoveContainedItemsToParent(__instance.TraderControllerClass as InventoryController))
+            {
+                __result = SuccessfulResult.New;
+            }
+            else
+            {
+                __result = itemsInsideFail;
+            }
         }
     }
 }

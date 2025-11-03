@@ -9,7 +9,8 @@
   "Container is folded": "Container is folded",
   "Item is folded and can't unfold in place": "Item is folded and can't unfold in place",
   "Cannot fold the item now": "Cannot fold the item now",
+  "Cannot fold the item while moving": "Cannot fold the item while moving",
   "Cannot fold the container with items inside": "Cannot fold the container with items inside",
-  "Cannot fold item while moving": "Cannot fold item while moving",
+  "Do you want to spill the contents of {0} and fold?": "Do you want to spill the contents of {0} and fold?",
   " (Folded)": " (Folded)"
 }
