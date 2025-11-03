@@ -8,32 +8,20 @@ namespace Foldables.Utils;
 
 public static class CommonUtils
 {
+    private const string _debugMessagePrefix = "[Foldables] ";
+
     public static ISptLogger<Foldables> Logger { get; set; }
     public static ServerLocalisationService ServerLocalisationService { get; set; }
     public static ItemHelper ItemHelper { get; set; }
     private static ModConfig ModConfig => Foldables.ModConfig;
 
-    private const string _debugMessagePrefix = "[Foldables] ";
+    public static void LogSuccess(string message) => Logger?.Success(_debugMessagePrefix + message);
 
-    public static void LogSuccess(string message)
-    {
-        Logger?.Success(_debugMessagePrefix + message);
-    }
+    public static void LogInfo(string message) => Logger?.Info(_debugMessagePrefix + message);
 
-    public static void LogInfo(string message)
-    {
-        Logger?.Info(_debugMessagePrefix + message);
-    }
+    public static void LogWarning(string message) => Logger?.Warning(_debugMessagePrefix + message);
 
-    public static void LogWarning(string message)
-    {
-        Logger?.Warning(_debugMessagePrefix + message);
-    }
-
-    public static void LogError(string message)
-    {
-        Logger?.Error(_debugMessagePrefix + message);
-    }
+    public static void LogError(string message) => Logger?.Error(_debugMessagePrefix + message);
 
     public static void LogDebug(string message)
     {
@@ -45,14 +33,8 @@ public static class CommonUtils
 
     public static ItemSize Swap(this ItemSize itemSize) => new() { Width = itemSize.Height, Height = itemSize.Width };
 
-    public static string Localize(this string key, object args = null)
-    {
-        return ServerLocalisationService.GetText(key, args);
-    }
+    public static string Localize(this string key, object args = null) => ServerLocalisationService?.GetText(key, args);
 
     public static string Localize<T>(this string key, T value)
-        where T : IConvertible
-    {
-        return ServerLocalisationService.GetText(key, value);
-    }
+        where T : IConvertible => ServerLocalisationService?.GetText(key, value);
 }
