@@ -1,5 +1,4 @@
 using EFT.InventoryLogic;
-using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 using System.Reflection;
@@ -22,7 +21,7 @@ public class UnfoldOnOpenInteractionPatch : ModulePatch
     {
         if (__instance.Item_0.IsFoldableFolded())
         {
-            __instance.Item_0.FoldItemWithDelay(__instance .ItemContextAbstractClass, (result) =>
+            __instance.ItemUiContext_1.FoldItemWithDelay(__instance.Item_0, __instance.ItemContextAbstractClass, (result) =>
             {
                 if (result.Succeed)
                 {

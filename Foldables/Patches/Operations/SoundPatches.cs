@@ -1,7 +1,9 @@
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
+using Foldables.Utils;
 using SPT.Reflection.Patching;
+using System;
 using System.Reflection;
 
 namespace Foldables.Patches.Operations;
@@ -9,6 +11,7 @@ namespace Foldables.Patches.Operations;
 /// <summary>
 /// UI sound for folding
 /// </summary>
+[Obsolete($"Bypassed by {nameof(ItemHelper.FoldItem)} with callback")]
 public class SoundPatches
 {
     public static bool InPatch = false;

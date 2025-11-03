@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.4")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.5")]
 public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
@@ -24,7 +24,7 @@ public class Foldables : BaseUnityPlugin
 
         // Operations
         new SearchableViewPatches().Enable();
-        new SoundPatches().Enable();
+        //new SoundPatches().Enable();
         new UnfoldOnOpenInteractionPatch().Enable();
         new InteractionSwitcherPatch().Enable();
         new OnDragPatch().Enable();
