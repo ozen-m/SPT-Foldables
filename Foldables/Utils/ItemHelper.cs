@@ -71,7 +71,11 @@ public static class ItemHelper
                         break;
                     }
                 }
+                if (!succeeded)
+                    break;
             }
+            if (!succeeded)
+                break;
         }
 
         if (!simulate && succeeded)
