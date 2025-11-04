@@ -34,7 +34,12 @@ public class CallToFoldItemPatch : ModulePatch
                         var multiSelectItem = itemContext.Item;
                         if (multiSelectItem is IFoldable multiSelectFoldable)
                         {
-                            return FoldItemInteraction(__instance.ItemUiContext_1, multiSelectItem, multiSelectFoldable, itemContext);
+                            var tcs = new TaskCompletionClass();
+                            FoldItemInteraction(__instance.ItemUiContext_1, multiSelectItem, multiSelectFoldable, itemContext, (_) =>
+                            {
+                                tcs.Complete();
+                            });
+                            return tcs.Task;
                         }
                         return Task.CompletedTask;
                     },
@@ -45,39 +50,44 @@ public class CallToFoldItemPatch : ModulePatch
             }
             else
             {
-                _ = FoldItemInteraction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
+                FoldItemInteraction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
             }
             return false;
         }
         return true;
     }
 
-    // Naming is hard
-    protected static async Task FoldItemInteraction(ItemUiContext itemUiContext, Item item, IFoldable foldableItem, ItemContextAbstractClass itemContextAbstractClass)
+    protected static void FoldItemInteraction(ItemUiContext itemUiContext, Item item, IFoldable foldableItem, ItemContextAbstractClass itemContextAbstractClass, Callback callback = null)
     {
-        Callback callback = null;
-
         // If to fold but not empty, ask if want to spill container contents 
         if (!foldableItem.Folded && !item.IsEmptyNonLinq())
         {
-            var toSpillItems = await itemUiContext.ShowSpillAndFoldDialog(item);
-            if (toSpillItems)
-            {
-                callback = (result) =>
-                {
-                    if (result.Succeed)
-                    {
-                        item.TryMoveContainedItemsToParent(ItemUiContextExtensions.InventoryControllerField(itemUiContext), false);
-                    }
-                };
-            }
-            else
-            {
-                NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
-                return;
-            }
+            _ = HandleNonEmptyFolding(itemUiContext, item, itemContextAbstractClass, callback);
         }
+        else
+        {
+            itemUiContext.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+        }
+    }
 
-        itemUiContext.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+    protected static async Task HandleNonEmptyFolding(ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass, Callback callback = null)
+    {
+        var toSpillContents = await itemUiContext.ShowSpillAndFoldDialog(item);
+        if (toSpillContents)
+        {
+            callback += (result) =>
+            {
+                if (result.Succeed)
+                {
+                    item.TryMoveContainedItemsToParent(ItemUiContextExtensions.InventoryControllerField(itemUiContext), false);
+                }
+            };
+            itemUiContext.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+        }
+        else
+        {
+            NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
+            callback?.Fail("Cannot fold the container with items inside");
+        }
     }
 }
