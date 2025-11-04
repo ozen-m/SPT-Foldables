@@ -6,6 +6,7 @@ using Foldables.Utils;
 using SPT.Reflection.Patching;
 using System.Reflection;
 using System.Threading.Tasks;
+using UIFixesInterop;
 
 namespace Foldables.Patches.Operations;
 
@@ -24,14 +25,35 @@ public class CallToFoldItemPatch : ModulePatch
     {
         if (__instance.Item_0 is IFoldable foldableItem)
         {
-            _ = FoldItemAction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
+            var multiSelectCount = MultiSelect.Count;
+            if (multiSelectCount != null && multiSelectCount > 1)
+            {
+                MultiSelect.ApplyAll(
+                    (itemContext) =>
+                    {
+                        var multiSelectItem = itemContext.Item;
+                        if (multiSelectItem is IFoldable multiSelectFoldable)
+                        {
+                            return FoldItemInteraction(__instance.ItemUiContext_1, multiSelectItem, multiSelectFoldable, itemContext);
+                        }
+                        return Task.CompletedTask;
+                    },
+                    foldableItem.Folded ? EItemInfoButton.Unfold : EItemInfoButton.Fold,
+                    false,
+                    __instance.ItemUiContext_1
+                    );
+            }
+            else
+            {
+                _ = FoldItemInteraction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
+            }
             return false;
         }
         return true;
     }
 
     // Naming is hard
-    protected static async Task FoldItemAction(ItemUiContext itemUiContext, Item item, IFoldable foldableItem, ItemContextAbstractClass itemContextAbstractClass)
+    protected static async Task FoldItemInteraction(ItemUiContext itemUiContext, Item item, IFoldable foldableItem, ItemContextAbstractClass itemContextAbstractClass)
     {
         Callback callback = null;
 

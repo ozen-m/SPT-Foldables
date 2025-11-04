@@ -11,6 +11,7 @@ using System.Linq;
 namespace Foldables;
 
 [BepInPlugin("com.ozen.foldables", "Foldables", "0.0.5")]
+[BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
