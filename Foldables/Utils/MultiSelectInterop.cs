@@ -17,13 +17,13 @@ public static class MultiSelect
     private static Action<ItemUiContext, EItemInfoButton, Func<ItemContextAbstractClass, Task>, bool> _applyAllMethod;
 
     /// <value><c>Count</c> represents the number of items in the current selection, null if UI Fixes is not present.</value>
-    public static int? Count
+    public static int Count
     {
         get
         {
             if (!Loaded())
             {
-                return null;
+                return 0;
             }
 
             return _getCountMethod();

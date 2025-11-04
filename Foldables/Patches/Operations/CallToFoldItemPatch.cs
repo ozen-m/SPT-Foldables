@@ -25,8 +25,7 @@ public class CallToFoldItemPatch : ModulePatch
     {
         if (__instance.Item_0 is IFoldable foldableItem)
         {
-            var multiSelectCount = MultiSelect.Count;
-            if (multiSelectCount != null && multiSelectCount > 1)
+            if (MultiSelect.Count > 1)
             {
                 MultiSelect.ApplyAll(
                     (itemContext) =>
