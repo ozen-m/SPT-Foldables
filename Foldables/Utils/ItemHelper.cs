@@ -23,11 +23,11 @@ public static class ItemHelper
     /// <summary>
     /// Move contained items to item's parent
     /// </summary>
-    /// <param name="item">The item whose contents will be spilled</param>
+    /// <param name="rootItem">The item whose contents will be spilled</param>
     /// <returns>True if possible/succeded</returns>
-    public static bool TryMoveContainedItemsToParent(this Item item, InventoryController inventoryController, bool simulate = true)
+    public static bool TryMoveContainedItemsToParent(this Item rootItem, InventoryController inventoryController, bool simulate = true)
     {
-        if (item.Parent.Container.ParentItem is InventoryEquipment || item is not CompoundItem compoundItem)
+        if (rootItem.Parent.Container.ParentItem is InventoryEquipment || rootItem is not CompoundItem compoundItem)
         {
             return false;
         }
@@ -38,30 +38,38 @@ public static class ItemHelper
         // Fold item when simulating - when not simulating, it is assumed item is already folded THEN move items to parent (call to this happens after folding)
         if (simulate)
         {
-            var foldableComponent = item.GetItemComponent<FoldableComponent>();
+            var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
             operations.Push(InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false));
         }
 
+        Stack<Item> containedItems = new();
         foreach (var container in compoundItem.Grids)
         {
-            List<Item> containedItems = [.. container.Items];
-            foreach (var containedItem in containedItems)
+            // Stackable items merge to existing stacks
+            while (container.ItemCollection.Count > 0) // container.Items
             {
-                var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
-                    containedItem,
-                    inventoryController,
-                    [item.Parent.Container.ParentItem as CompoundItem],
-                    InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
-                    false // Do not simulate since the next result depends on the last
-                    );
-                if (moveResult.Succeeded)
+                foreach (var item in container.Items)
                 {
-                    operations.Push(moveResult);
+                    containedItems.Push(item);
                 }
-                else
+                while (containedItems.TryPop(out Item containedItem))
                 {
-                    succeeded = false;
-                    break;
+                    var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
+                        containedItem,
+                        inventoryController,
+                        [rootItem.Parent.Container.ParentItem as CompoundItem],
+                        InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
+                        false // Do not simulate since the next result depends on the last
+                        );
+                    if (moveResult.Succeeded)
+                    {
+                        operations.Push(moveResult);
+                    }
+                    else
+                    {
+                        succeeded = false;
+                        break;
+                    }
                 }
             }
         }
@@ -92,7 +100,7 @@ public static class ItemHelper
         {
             foreach (StashGridClass grid in compoundItem.Grids)
             {
-                if (grid.Gclass3120_0.Count > 0)
+                if (grid.ItemCollection.Count > 0)
                 {
                     return false;
                 }
