@@ -90,12 +90,10 @@
       <OutputDLL Include="$(TargetPath)" />
       <PDB Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' != 'Release'" />
     </ItemGroup>
-    <MakeDir Directories="$(DestDir)" />
     <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(DestDir)" />
     <Copy SourceFiles="@(PDB)" DestinationFolder="$(DestDir)" Condition="'$(Configuration)' != 'Release'"/>
 
     <!-- Release -->
-    <MakeDir Directories="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
     <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
     <ZipDirectory SourceDirectory="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(AssemblyName)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
   </Target>
