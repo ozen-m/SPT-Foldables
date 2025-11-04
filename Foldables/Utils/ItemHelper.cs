@@ -13,7 +13,7 @@ public static class ItemHelper
         return item is IFoldable foldableItem && foldableItem.Folded;
     }
 
-    public static void FoldItem(this Item item) => ItemUiContext.Instance.FoldItem(item);
+    public static void FoldItem(this Item item, Callback callback = null) => ItemUiContext.Instance.FoldItem(item, callback);
 
     /// <summary>
     /// Fold item with delay. Delays only in raid

@@ -42,26 +42,48 @@ public class GetActionsPatch : ModulePatch
                     return;
                 }
 
-                var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
-                GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
-
-                owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
+                if (Foldables.DelayInRaid.Value)
                 {
-                    // Might appear that the operation failed (due to delay in callback) so do not simulate
-                    if (successful)
+                    // Simulate folding in raid by using PlantStateClass
+                    var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
+                    GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+
+                    owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
                     {
-                        controller.TryRunNetworkTransaction(foldingResult, (_) =>
+                        // Might appear that the operation failed (due to delay in callback) so do not simulate
+                        if (successful)
                         {
-                            // "Take" action missing unless forced to update interactions
-                            owner.InteractionsChangedHandler();
-                        });
-                        Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
-                    }
-                    else
+                            controller.TryRunNetworkTransaction(foldingResult, (_) =>
+                            {
+                                // "Take" action missing unless forced to update interactions
+                                owner.InteractionsChangedHandler();
+                            });
+                            Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
+                        }
+                        else
+                        {
+                            foldingResult.Value.RollBack();
+                        }
+                    });
+                }
+                else
+                {
+                    // No delay, use PickupStateClass
+                    rootItem.FoldItem((result) =>
                     {
-                        foldingResult.Value.RollBack();
-                    }
-                });
+                        if (result.Succeed)
+                        {
+                            owner.Player.CurrentManagedState.Pickup(true, () =>
+                            {
+                                owner.Player.UpdateInteractionCast();
+                                if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
+                                {
+                                    pickupStateClass.Pickup(false, null);
+                                }
+                            });
+                        }
+                    });
+                }
             },
             Disabled = (!foldableItem.Folded && !rootItem.IsEmptyNonLinq())
         });
