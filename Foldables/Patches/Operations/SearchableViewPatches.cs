@@ -26,8 +26,8 @@ public class OnAddToSlotPatch : ModulePatch
         return typeof(SearchableSlotView).GetMethod(nameof(SearchableSlotView.OnAddToSlot));
     }
 
-    [PatchPrefix]
-    protected static void Prefix(SearchableSlotView __instance, Item item, GEventArgs2 args)
+    [PatchPostfix]
+    protected static void Postfix(SearchableSlotView __instance, Item item, GEventArgs2 args)
     {
         if (args.Status == CommandStatus.Succeed && item.IsFoldableFolded())
         {
