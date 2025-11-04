@@ -31,53 +31,22 @@ public static class ItemHelper
         {
             return false;
         }
-
-        var succeeded = true;
         Stack<GStruct153> operations = new();
 
         // Fold item when simulating - when not simulating, it is assumed item is already folded THEN move items to parent (call to this happens after folding)
         if (simulate)
         {
             var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
-            operations.Push(InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false));
-        }
-
-        Stack<Item> containedItems = new();
-        foreach (var container in compoundItem.Grids)
-        {
-            // Stackable items merge to existing stacks
-            while (container.ItemCollection.Count > 0) // container.Items
+            var foldOp = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+            if (foldOp.Failed)
             {
-                foreach (var item in container.Items)
-                {
-                    containedItems.Push(item);
-                }
-                while (containedItems.TryPop(out Item containedItem))
-                {
-                    var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
-                        containedItem,
-                        inventoryController,
-                        [rootItem.Parent.Container.ParentItem as CompoundItem],
-                        InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
-                        false // Do not simulate since the next result depends on the last
-                        );
-                    if (moveResult.Succeeded)
-                    {
-                        operations.Push(moveResult);
-                    }
-                    else
-                    {
-                        succeeded = false;
-                        break;
-                    }
-                }
-                if (!succeeded)
-                    break;
+                foldOp.Value.RollBack();
+                return false;
             }
-            if (!succeeded)
-                break;
+            operations.Push(foldOp);
         }
 
+        var succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
         if (!simulate && succeeded)
         {
             while (operations.TryPop(out var moveOp))
@@ -96,6 +65,41 @@ public static class ItemHelper
         }
 
         return succeeded;
+    }
+
+    private static bool ProcessContainerItems(Item rootItem, StashGridClass[] containers, Stack<GStruct153> operations, InventoryController inventoryController)
+    {
+        Stack<Item> containedItems = new();
+        foreach (var container in containers)
+        {
+            // Stackable items merge to existing stacks
+            while (container.ItemCollection.Count > 0)
+            {
+                foreach (var item in container.ItemCollection.Keys) // container.Items
+                {
+                    containedItems.Push(item);
+                }
+                while (containedItems.TryPop(out Item containedItem))
+                {
+                    var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
+                        containedItem,
+                        inventoryController,
+                        [rootItem.Parent.Container.ParentItem as CompoundItem],
+                        InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
+                        false // Do not simulate since the next result depends on the last
+                        );
+                    if (moveResult.Succeeded)
+                    {
+                        operations.Push(moveResult);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public static bool IsEmptyNonLinq(this Item item)
