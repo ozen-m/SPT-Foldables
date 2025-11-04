@@ -71,7 +71,7 @@ public class CallToFoldItemPatch : ModulePatch
 
     protected static async Task HandleNonEmptyFolding(ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass, Callback callback = null)
     {
-        var toSpillContents = await itemUiContext.ShowSpillAndFoldDialog(item);
+        var toSpillContents = !Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialog(item);
         if (toSpillContents)
         {
             callback += (result) =>

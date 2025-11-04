@@ -21,7 +21,7 @@ public class OnDragPatch : ModulePatch
     [PatchPrefix]
     protected static void Prefix(ItemView __instance, PointerEventData ___pointerEventData_0, ItemUiContext ___ItemUiContext)
     {
-        if (__instance.BeingDragged && __instance.Item is IFoldable && Input.GetKey(KeyCode.F))
+        if (Foldables.FoldWhileDragging.Value && __instance.BeingDragged && __instance.Item is IFoldable && Input.GetKey(Foldables.FoldWhileDragHotkey.Value.MainKey))
         {
             __instance.ExecuteMiddleClick(); // Fold/unfold
             RecreateDraggedItemView(__instance, ___ItemUiContext);

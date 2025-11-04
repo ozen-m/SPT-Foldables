@@ -39,7 +39,7 @@ public static class ItemUiContextExtensions
     /// </summary>
     public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
     {
-        if (!GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0)
+        if (!Foldables.DelayInRaid.Value || !GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0)
         {
             // Close the "open" grid window when item is folded
             itemContextAbstractClass?.CloseDependentWindows();
@@ -54,7 +54,15 @@ public static class ItemUiContextExtensions
             inventoryController.StopProcesses();
             StopFolding();
             _cancellationTokenSource = new();
-            playerInventoryController.Player_0.StartCoroutine(FoldingAction(item, foldableItem.FoldingTime, inventoryController, itemUiContext, itemContextAbstractClass, _cancellationTokenSource.Token, callback));
+
+            playerInventoryController.Player_0.StartCoroutine(
+                FoldingAction(item,
+                foldableItem.FoldingTime,
+                inventoryController,
+                itemUiContext,
+                itemContextAbstractClass,
+                _cancellationTokenSource.Token,
+                callback));
         }
     }
 
@@ -67,7 +75,14 @@ public static class ItemUiContextExtensions
         return await itemUiContext.ShowMessageWindow(out var _, description, null, true);
     }
 
-    private static IEnumerator FoldingAction(Item item, float seconds, InventoryController inventoryController, ItemUiContext itemUiContext, ItemContextAbstractClass itemContextAbstractClass, CancellationToken token, Callback callback = null)
+    private static IEnumerator FoldingAction(
+        Item item,
+        float seconds, 
+        InventoryController inventoryController,
+        ItemUiContext itemUiContext,
+        ItemContextAbstractClass itemContextAbstractClass,
+        CancellationToken token,
+        Callback callback = null)
     {
         _activeCount++;
 
