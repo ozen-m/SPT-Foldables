@@ -12,6 +12,7 @@ public class Foldables : BaseUnityPlugin
 {
     public static ManualLogSource LogSource;
 
+    public static ConfigEntry<bool> FoldWhileEquipped;
     public static ConfigEntry<bool> ShowSpillDialog;
     public static ConfigEntry<bool> FoldWhileDragging;
     public static ConfigEntry<KeyboardShortcut> FoldWhileDragHotkey;
@@ -20,9 +21,10 @@ public class Foldables : BaseUnityPlugin
     {
         LogSource = Logger;
 
+        FoldWhileEquipped = Config.Bind("General", "Fold While Equipped", true, new ConfigDescription("Allow folding while gear is equipped", null, new ConfigurationManagerAttributes() { Order = 3 }));
         ShowSpillDialog = Config.Bind("General", "Spill Confirmation", true, new ConfigDescription("Confirm if player wants to spill non empty container items, if possible. If disabled, always spill items without asking", null, new ConfigurationManagerAttributes() { Order = 2 }));
-        FoldWhileDragging = Config.Bind("EXPERIMENTAL", "Fold While Dragging (EXPERIMENTAL)", false, new ConfigDescription("Enable folding/unfolding while dragging an item using a hotkey", null, new ConfigurationManagerAttributes() { Order = 1, IsAdvanced = true}));
-        FoldWhileDragHotkey = Config.Bind("EXPERIMENTAL", "Dragging Hotkey", new KeyboardShortcut(KeyCode.None), new ConfigDescription("Key used to fold/unfold while dragging", null, new ConfigurationManagerAttributes() { Order = 0, IsAdvanced = true}));
+        FoldWhileDragging = Config.Bind("Experimental", "Fold While Dragging", false, new ConfigDescription("Enable folding/unfolding while dragging an item using a hotkey", null, new ConfigurationManagerAttributes() { Order = 1, IsAdvanced = true}));
+        FoldWhileDragHotkey = Config.Bind("Experimental", "Dragging Hotkey", new KeyboardShortcut(KeyCode.None), new ConfigDescription("Key used to fold/unfold while dragging", null, new ConfigurationManagerAttributes() { Order = 0, IsAdvanced = true}));
 
         new FoldablesPatches().Enable();
     }

@@ -12,9 +12,10 @@ namespace Foldables.Patches.Operations;
 /// </summary>
 public class InteractionSwitcherPatch : ModulePatch
 {
-    protected static readonly FailedResult openContainerFail = new("Item is folded and can't unfold in place");
-    protected static readonly FailedResult itemsInsideFail = new("Cannot fold the container with items inside");
     protected static readonly FailedResult foldItemFail = new("Cannot fold the item now");
+    protected static readonly FailedResult openContainerFail = new("Item is folded and can't unfold in place");
+    protected static readonly FailedResult foldItemEquippedFail = new("Cannot fold while the item is equipped");
+    protected static readonly FailedResult itemsInsideFail = new("Cannot fold the container with items inside");
 
     protected override MethodBase GetTargetMethod()
     {
@@ -42,17 +43,25 @@ public class InteractionSwitcherPatch : ModulePatch
                 __result = openContainerFail;
             }
         }
-        else if (button == EItemInfoButton.Fold && !__instance.Item_0_1.IsEmptyNonLinq())
+        else if (button == EItemInfoButton.Fold)
         {
-            // If can spill contents, do not fail
-            if (__instance.Item_0_1.TryMoveContainedItemsToParent(__instance.TraderControllerClass as InventoryController))
+            if (!Foldables.FoldWhileEquipped.Value && __instance.Item_0_1.Parent.Container.ParentItem is InventoryEquipment)
             {
-                __result = SuccessfulResult.New;
+                __result = foldItemEquippedFail;
             }
-            else
+            else if (!__instance.Item_0_1.IsEmptyNonLinq())
             {
-                __result = itemsInsideFail;
+                if (__instance.Item_0_1.TryMoveContainedItemsToParent(__instance.TraderControllerClass as InventoryController))
+                {
+                    // If can spill contents, do not fail
+                    __result = SuccessfulResult.New;
+                }
+                else
+                {
+                    __result = itemsInsideFail;
+                }
             }
         }
     }
 }
+// rip nesting
