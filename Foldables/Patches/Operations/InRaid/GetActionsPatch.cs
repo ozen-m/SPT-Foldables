@@ -22,7 +22,7 @@ public class GetActionsPatch : ModulePatch
     [PatchPostfix]
     protected static void Postfix(GamePlayerOwner owner, Item rootItem, string lootItemName, ref ActionsReturnClass __result)
     {
-        if (rootItem is not IFoldable foldableItem)
+        if (rootItem is not IFoldable foldableItem || !InteractionsHandlerClass.CanFold(rootItem, out var foldableComponent))
         {
             return;
         }
@@ -45,9 +45,7 @@ public class GetActionsPatch : ModulePatch
                 if (Foldables.DelayInRaid.Value)
                 {
                     // Simulate folding in raid by using PlantStateClass
-                    var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
                     GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
-
                     owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
                     {
                         // Might appear that the operation failed (due to delay in callback) so do not simulate
