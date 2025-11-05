@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Foldables</AssemblyName>
-    <Version>0.0.6</Version>
+    <Version>0.0.7</Version>
     <LangVersion>latest</LangVersion>
     <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
     <Authors>ozen</Authors>

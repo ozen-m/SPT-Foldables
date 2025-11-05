@@ -42,7 +42,7 @@ public class GetActionsPatch : ModulePatch
                     return;
                 }
 
-                if (Foldables.DelayInRaid.Value)
+                if (foldableItem.FoldingTime > 0f)
                 {
                     // Simulate folding in raid by using PlantStateClass
                     GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);

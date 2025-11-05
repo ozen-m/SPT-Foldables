@@ -39,7 +39,7 @@ public static class ItemUiContextExtensions
     /// </summary>
     public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
     {
-        if (!Foldables.DelayInRaid.Value || !GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0)
+        if (!GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0f)
         {
             // Close the "open" grid window when item is folded
             itemContextAbstractClass?.CloseDependentWindows();
