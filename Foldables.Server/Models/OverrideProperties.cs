@@ -5,6 +5,9 @@ namespace Foldables.Models;
 
 public record OverrideProperties
 {
+    [JsonPropertyName("Foldable")]
+    public bool Foldable { get; set; } = true;
+
     [JsonPropertyName("FoldedSize")]
     public ItemSize ItemSize { get; set; }
 

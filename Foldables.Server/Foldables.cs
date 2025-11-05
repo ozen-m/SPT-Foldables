@@ -40,12 +40,12 @@ public class Foldables(
 
         var backpacksItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.BACKPACK) && i.Id != "56e294cdd2720b603a8b4575"); // Exclude dev backpack
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.BACKPACK) && GetIsFoldable(i.Id));
         AddFoldableProperties(backpacksItemTemplates, BaseClasses.BACKPACK);
 
         var vestsItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && !i.Properties.Slots.Any());
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && GetIsFoldable(i.Id) && !i.Properties.Slots.Any());
         AddFoldableProperties(vestsItemTemplates, BaseClasses.VEST);
 
         CommonUtils.LogSuccess("loaded successfully!".Localize());
@@ -129,7 +129,7 @@ public class Foldables(
             throw new InvalidDataException($"Default CellSize not found for `VestFoldedCellSizes`");
         }
 
-        // Unknown fields
+        // Unknown/missing properties
         StringBuilder sb = new();
         if (ModConfig.ExtensionData.Count > 0)
         {
@@ -149,13 +149,17 @@ public class Foldables(
                     sb.Append(' ').Append(obj.ToString());
                 }
             }
-            if (value.ItemSize.ExtensionData.Count > 0)
+            if (value.ItemSize?.ExtensionData.Count > 0)
             {
                 sb.Append("; Found unknown fields under FoldedSize for item ").Append(key).Append(':');
                 foreach (var obj in value.ItemSize.ExtensionData)
                 {
                     sb.Append(' ').Append(obj.ToString());
                 }
+            }
+            if (value.Foldable && value.ItemSize == null && value.FoldingTime == null)
+            {
+                CommonUtils.LogWarning("missing-overrideproperties".Localize(key.ToString()));
             }
         }
         if (sb.Length > 0)
@@ -186,6 +190,14 @@ public class Foldables(
             CommonUtils.LogInfo("added-backpacks".Localize(itemTemplates.Count()));
         else if (baseClass == BaseClasses.VEST)
             CommonUtils.LogInfo("added-vests".Localize(itemTemplates.Count()));
+    }
+
+    protected bool GetIsFoldable(MongoId itemId)
+    {
+        if (ModConfig.Overrides.TryGetValue(itemId, out OverrideProperties overrideProperties))
+            return overrideProperties.Foldable;
+
+        return true;
     }
 
     protected double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)

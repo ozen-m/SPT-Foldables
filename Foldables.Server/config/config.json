@@ -9,6 +9,10 @@
 				"height": 3
 			},
 			"FoldingTime": 5
+		},
+		// Disable dev backpack. Do NOT remove - will mess with cell sizes if removed.
+		"56e294cdd2720b603a8b4575": {
+			"Foldable": false
 		}
 	},
 
