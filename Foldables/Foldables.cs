@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "0.0.7")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.0")]
 [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
