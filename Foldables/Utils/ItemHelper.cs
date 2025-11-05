@@ -33,17 +33,19 @@ public static class ItemHelper
         }
         Stack<GStruct153> operations = new();
 
-        // Fold item when simulating - when not simulating, it is assumed item is already folded THEN move items to parent (call to this happens after folding)
-        if (simulate)
+        // Fold IFoldable item when simulating - when not simulating, it is assumed item is already folded THEN move items to parent (call to this happens after folding)
+        if (simulate && rootItem is IFoldable)
         {
             var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
-            var foldOp = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
-            if (foldOp.Failed)
+            if (foldableComponent != null)
             {
-                foldOp.Value.RollBack();
-                return false;
+                var foldOp = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+                if (foldOp.Failed)
+                {
+                    return false;
+                }
+                operations.Push(foldOp);
             }
-            operations.Push(foldOp);
         }
 
         var succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
