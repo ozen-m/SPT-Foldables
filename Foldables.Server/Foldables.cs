@@ -114,7 +114,7 @@ public class Foldables(
     private static void ValidateConfig()
     {
         // Folding times
-        ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 1);
+        ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 0);
         ModConfig.MaxFoldingTime = Math.Max(ModConfig.MinFoldingTime, ModConfig.MaxFoldingTime);
 
         // Folded cell sizes
