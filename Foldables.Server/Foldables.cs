@@ -48,7 +48,7 @@ public class Foldables(
             .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && GetIsFoldable(i.Id) && !i.Properties.Slots.Any());
         AddFoldableProperties(vestsItemTemplates, BaseClasses.VEST);
 
-        CommonUtils.LogSuccess("loaded successfully!".Localize());
+        CommonUtils.LogSuccess("loaded successfully!".Localized());
         return Task.CompletedTask;
     }
 
@@ -159,7 +159,7 @@ public class Foldables(
             }
             if (value.Foldable && value.ItemSize == null && value.FoldingTime == null)
             {
-                CommonUtils.LogWarning("missing-overrideproperties".Localize(key.ToString()));
+                CommonUtils.LogWarning("missing-overrideproperties".Localized(key.ToString()));
             }
         }
         if (sb.Length > 0)
@@ -183,13 +183,13 @@ public class Foldables(
             itemProperties.ExtensionData["SizeReduceDown"] = reduceCellSize.Height;
             itemProperties.ExtensionData["FoldingTime"] = foldingTime;
 
-            CommonUtils.LogDebug("set-properties".Localize(new { name = itemTemplate.Name, id = itemTemplate.Id, size = GetCellSize(itemProperties), time = foldingTime }));
+            CommonUtils.LogDebug("set-properties".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id, size = GetCellSize(itemProperties), time = foldingTime }));
         }
 
         if (baseClass == BaseClasses.BACKPACK)
-            CommonUtils.LogInfo("added-backpacks".Localize(itemTemplates.Count()));
+            CommonUtils.LogInfo("added-backpacks".Localized(itemTemplates.Count()));
         else if (baseClass == BaseClasses.VEST)
-            CommonUtils.LogInfo("added-vests".Localize(itemTemplates.Count()));
+            CommonUtils.LogInfo("added-vests".Localized(itemTemplates.Count()));
     }
 
     protected bool GetIsFoldable(MongoId itemId)

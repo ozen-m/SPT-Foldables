@@ -33,8 +33,8 @@ public static class CommonUtils
 
     public static ItemSize Swap(this ItemSize itemSize) => new() { Width = itemSize.Height, Height = itemSize.Width };
 
-    public static string Localize(this string key, object args = null) => ServerLocalisationService?.GetText(key, args);
+    public static string Localized(this string key, object args = null) => ServerLocalisationService?.GetText(key, args);
 
-    public static string Localize<T>(this string key, T value)
+    public static string Localized<T>(this string key, T value)
         where T : IConvertible => ServerLocalisationService?.GetText(key, value);
 }
