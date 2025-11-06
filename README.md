@@ -1,11 +1,10 @@
 # Foldables
 You can now fold backpacks and vests!
 
-**Foldables** introduces the ability to fold your gear, *collapsing* into smaller grid sizes. This way you can save space in your stash, or keep valuable backpacks/vests you found in-raid.
+**Foldables** introduces the ability to fold your gear, *collapsing* into smaller grid sizes. This way you can save space in your stash, or keep valuable backpacks/vests you find in-raid.
 
 ---
 
-## Foldables {.tabset}
 ### Features 
 - Every compatible gear now has a folded state: Fold like you would a gun by using <kbd>middle mouse click</kbd> or by using the context menu
 - Compatible gear includes: Backpacks, Unarmored Vests
@@ -15,8 +14,12 @@ You can now fold backpacks and vests!
 
 ### Installation
 - Extract the contents of the .zip archive into your SPT folder.
+<details>
+  <summary>Demonstration</summary>
+
 ![Installation](https://i.imgur.com/3N6gTe2.gif)
 Thank you [DrakiaXYZ](https://forge.sp-tarkov.com/user/27605/drakiaxyz) for the gif
+</details>
 
 ### Configuration
 #### Server Side
@@ -38,7 +41,10 @@ In the BepInEx configuration manager (<kbd>F12</kbd>)
 - This should work with mods that add custom gear
 
 ### Support
-If you find bugs, or have feature suggestions, feel free to post them on the comment section, or open an issue on GitHub, or most preferably through the SPT Discord, ozen
+<details>
+  <summary>Support</summary>
+
+If you find any bugs, issues, or have feature suggestions, feel free to post them on the comment section, or open an issue on GitHub, or most preferably through the SPT Discord, ozen
 
 #### Contributing
 - I would appreciate it if you could help translate this mod into your language. Locale files are inside `config/locales/`, with your language `__.json`
@@ -46,11 +52,14 @@ If you find bugs, or have feature suggestions, feel free to post them on the com
 #### Future Plans
 - Folded static loot
 - Custom folded models (okay, maybe not)
+</details>
 
 ### Credits
+<details>
+  <summary>Credits</summary>
+
 - Thanks to [Tyfon](https://forge.sp-tarkov.com/user/46005/tyfon) for entertaining my questions, and his work on UIFixes which showed what else can be possible
 - Thanks to [BloodRain13](https://forge.sp-tarkov.com/user/86388/bloodrain13) for helping test this mod extensively
 - Thanks to [Gleneth](https://forge.sp-tarkov.com/user/26904/gleneth) for his help on initial testing
 - FlatIcon - [1](https://www.flaticon.com/free-icon/military_3856880), [2](https://www.flaticon.com/free-icon/clean-clothes_9619571)
-
-{.endtabset}
+</details>
