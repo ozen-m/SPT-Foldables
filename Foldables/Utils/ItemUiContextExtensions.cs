@@ -15,9 +15,8 @@ public static class ItemUiContextExtensions
 {
     public static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> InventoryControllerField = AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
     private static CancellationTokenSource _cancellationTokenSource;
-    private static int _activeCount;
 
-    public static bool IsFolding => _activeCount > 0;
+    public static bool IsFolding => _cancellationTokenSource != null;
 
     /// <summary>
     /// <seealso cref="ItemUiContext.FoldItem"/> with callback
@@ -84,8 +83,6 @@ public static class ItemUiContextExtensions
         CancellationToken token,
         Callback callback = null)
     {
-        _activeCount++;
-
         // Use LoadMagazineEvent for our UI
         IItemOwner owner = item.Owner;
         GEventArgs7 startFoldEvent = new(null, item, 1, seconds, CommandStatus.Begin, owner);
@@ -97,14 +94,12 @@ public static class ItemUiContextExtensions
         {
             if (token.IsCancellationRequested)
             {
-                _activeCount--;
                 inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
                 callback?.Fail("Folding was cancelled");
                 yield break;
             }
             yield return null;
         }
-        _activeCount--;
         inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
 
         // Final check before folding
