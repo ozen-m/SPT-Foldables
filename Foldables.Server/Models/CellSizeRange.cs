@@ -1,5 +1,5 @@
-using SPTarkov.Server.Core.Models.Spt.Inventory;
 using System.Text.Json.Serialization;
+using SPTarkov.Server.Core.Models.Spt.Inventory;
 
 namespace Foldables.Models;
 

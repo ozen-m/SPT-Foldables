@@ -30,7 +30,7 @@ public class FoldableBackpackItemClass : BackpackItemClass, IFoldable
         return base.Apply(itemController, item, count, simulate);
     }
 
-    public bool Folded => Foldable != null && Foldable.Folded;
+    public bool Folded => Foldable is { Folded: true };
 
     public int SizeReduceRight => Foldable.SizeReduceRight;
 

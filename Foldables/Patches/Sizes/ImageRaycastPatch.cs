@@ -1,8 +1,8 @@
-﻿using EFT.UI.DragAndDrop;
+﻿using System.Reflection;
+using EFT.UI.DragAndDrop;
 using Foldables.Models;
 using HarmonyLib;
 using SPT.Reflection.Patching;
-using System.Reflection;
 using UnityEngine.UI;
 
 namespace Foldables.Patches.Sizes;
@@ -12,21 +12,19 @@ namespace Foldables.Patches.Sizes;
 /// </summary>
 public class ImageRaycastPatch : ModulePatch
 {
-    public static AccessTools.FieldRef<GridItemView, Image> mainImageField;
+    private static readonly AccessTools.FieldRef<GridItemView, Image> _mainImageField = AccessTools.FieldRefAccess<GridItemView, Image>("MainImage");
 
     protected override MethodBase GetTargetMethod()
     {
-        mainImageField = AccessTools.FieldRefAccess<GridItemView, Image>("MainImage");
-
         return typeof(GridItemView).GetMethod(nameof(GridItemView.NewItemView));
     }
 
     [PatchPostfix]
     protected static void Postfix(GridItemView __instance)
     {
-        if (__instance.Item is IFoldable foldableItem)
+        if (__instance.Item is IFoldable)
         {
-            Image mainImage = mainImageField(__instance);
+            var mainImage = _mainImageField(__instance);
             mainImage.raycastTarget = false;
         }
     }

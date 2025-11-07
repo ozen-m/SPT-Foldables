@@ -1,8 +1,8 @@
-﻿using EFT.InventoryLogic;
+﻿using System.Collections.Generic;
+using System.Reflection;
+using EFT.InventoryLogic;
 using Foldables.Models;
 using SPT.Reflection.Patching;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace Foldables.Patches.Sizes;
 
@@ -13,24 +13,23 @@ public class ResizeHelperPatch : ModulePatch
         return typeof(InteractionsHandlerClass).GetMethod(nameof(InteractionsHandlerClass.Resize_Helper));
     }
 
-    // So hacky I hate it, but bsg checking the item itself instead of the component...well
     [PatchPrefix]
     protected static bool Prefix(Item item, ItemAddress location, InteractionsHandlerClass.EResizeAction resizeAction, bool backwards, bool simulate, ref GStruct154<GClass3416> __result)
     {
-        List<Item> list = simulate ? null : new();
+        List<Item> list = simulate ? null : [];
         if (location is GClass3390)
         {
             __result = new GClass3416(item, location, resizeAction, list, default(GStruct424));
             return false;
         }
-        Item item2 = resizeAction == InteractionsHandlerClass.EResizeAction.Fold || resizeAction == InteractionsHandlerClass.EResizeAction.Unfold ? item : location.Container.ParentItem;
+        Item item2 = resizeAction is InteractionsHandlerClass.EResizeAction.Fold or InteractionsHandlerClass.EResizeAction.Unfold ? item : location.Container.ParentItem;
         GInterface407 gInterface = default(GStruct424);
-        while (item2 is CompoundItem compoundItem && (compoundItem is Weapon || compoundItem is Mod || compoundItem is IFoldable) && compoundItem.Parent is not GClass3390)
+        while (item2 is CompoundItem compoundItem && compoundItem is Weapon or Mod or IFoldable && compoundItem.Parent is not GClass3390)
         {
             if (compoundItem.Parent is GClass3393)
             {
-                XYCellSizeStruct xYCellSizeStruct = compoundItem.CalculateCellSize();
-                XYCellSizeStruct xYCellSizeStruct2 = resizeAction switch
+                var xYCellSizeStruct = compoundItem.CalculateCellSize();
+                var xYCellSizeStruct2 = resizeAction switch
                 {
                     InteractionsHandlerClass.EResizeAction.Unfold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: false),
                     InteractionsHandlerClass.EResizeAction.Fold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: true),
@@ -38,8 +37,8 @@ public class ResizeHelperPatch : ModulePatch
                     InteractionsHandlerClass.EResizeAction.Addition => compoundItem.GetSizeAfterAttachment(location, item),
                     _ => compoundItem.CalculateCellSize(),
                 };
-                XYCellSizeStruct oldSize = backwards ? xYCellSizeStruct2 : xYCellSizeStruct;
-                XYCellSizeStruct newSize = backwards ? xYCellSizeStruct : xYCellSizeStruct2;
+                var oldSize = backwards ? xYCellSizeStruct2 : xYCellSizeStruct;
+                var newSize = backwards ? xYCellSizeStruct : xYCellSizeStruct2;
                 GStruct154<GInterface407> gStruct = InteractionsHandlerClass.smethod_21(compoundItem, oldSize, newSize, simulate);
                 if (!gStruct.Succeeded)
                 {
@@ -65,7 +64,7 @@ public class ResizeHelperPatch : ModulePatch
             }
             // Don't check parent item if IFoldable
             // Double check for side effects
-            item2 = compoundItem is IFoldable ? null : compoundItem.Parent.Container.ParentItem;
+            item2 = compoundItem is not IFoldable ? compoundItem.Parent.Container.ParentItem : null;
         }
         __result = new GClass3416(item, location, resizeAction, list, gInterface);
         return false;

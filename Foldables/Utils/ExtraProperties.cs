@@ -5,13 +5,13 @@ namespace Foldables.Utils;
 // Thanks Tyfon!
 public static class ExtraActionsReturnClassProperties
 {
-	private static readonly ConditionalWeakTable<ActionsReturnClass, Properties> properties = [];
+	private static readonly ConditionalWeakTable<ActionsReturnClass, Properties> _properties = [];
 
 	private class Properties
 	{
-		public bool Folded = false;
+		public bool Folded;
 	}
 
-	public static bool GetIsFolded(this ActionsReturnClass actionsReturnClass) => properties.GetOrCreateValue(actionsReturnClass).Folded;
-	public static void SetIsFolded(this ActionsReturnClass actionsReturnClass, bool value) => properties.GetOrCreateValue(actionsReturnClass).Folded = value;
+	public static bool GetIsFolded(this ActionsReturnClass actionsReturnClass) => _properties.GetOrCreateValue(actionsReturnClass).Folded;
+	public static void SetIsFolded(this ActionsReturnClass actionsReturnClass, bool value) => _properties.GetOrCreateValue(actionsReturnClass).Folded = value;
 }

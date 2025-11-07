@@ -1,15 +1,15 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.Utils;
 using SPTarkov.Server.Core.Utils.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Foldables.Utils;
 
 [Injectable(InjectionType.Singleton)]
 public class CustomJsonUtil(IEnumerable<IJsonConverterRegistrator> registrators) : JsonUtil(registrators)
 {
-    private readonly JsonSerializerOptions JsonSerializerOptionsNoIndentCaseInsensitive = new(JsonUtil.JsonSerializerOptionsNoIndent)
+    private readonly JsonSerializerOptions _jsonSerializerOptionsNoIndentCaseInsensitive = new(JsonSerializerOptionsNoIndent!)
     {
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
         AllowTrailingCommas = true,
@@ -29,6 +29,6 @@ public class CustomJsonUtil(IEnumerable<IJsonConverterRegistrator> registrators)
         }
 
         using FileStream fs = new(file, FileMode.Open, FileAccess.Read);
-        return JsonSerializer.Deserialize<T>(fs, JsonSerializerOptionsNoIndentCaseInsensitive);
+        return JsonSerializer.Deserialize<T>(fs, _jsonSerializerOptionsNoIndentCaseInsensitive);
     }
 }

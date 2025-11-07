@@ -1,8 +1,8 @@
+using System.Reflection;
 using EFT.InventoryLogic;
 using EFT.UI.DragAndDrop;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
 
 namespace Foldables.Patches.Operations;
 

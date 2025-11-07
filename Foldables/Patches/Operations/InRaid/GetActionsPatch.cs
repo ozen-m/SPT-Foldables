@@ -1,3 +1,4 @@
+using System.Reflection;
 using Comfort.Common;
 using EFT;
 using EFT.InventoryLogic;
@@ -5,7 +6,6 @@ using EFT.UI;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
 
 namespace Foldables.Patches.Operations.InRaid;
 
@@ -32,8 +32,8 @@ public class GetActionsPatch : ModulePatch
 
         __result.Actions.Add(new ActionsTypesClass
         {
-            Name = (foldableItem.Folded ? "Unfold" : "Fold"),
-            TargetName = (isExamined ? lootItemName : "Unknown item".Localized()),
+            Name = foldableItem.Folded ? "Unfold" : "Fold",
+            TargetName = isExamined ? lootItemName : "Unknown item".Localized(),
             Action = () =>
             {
                 if (owner.Player.CurrentState is not IdleStateClass)
@@ -45,7 +45,7 @@ public class GetActionsPatch : ModulePatch
                 if (foldableItem.FoldingTime > 0f)
                 {
                     // Simulate folding in raid by using PlantStateClass
-                    GStruct154<GClass3428> foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+                    var foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
                     owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
                     {
                         // Might appear that the operation failed (due to delay in callback) so do not simulate
@@ -83,12 +83,12 @@ public class GetActionsPatch : ModulePatch
                     });
                 }
             },
-            Disabled = (!foldableItem.Folded && !rootItem.IsEmptyNonLinq())
+            Disabled = !foldableItem.Folded && !rootItem.IsEmptyNonLinq()
         });
 
         if (foldableItem.Folded)
         {
-            foreach (ActionsTypesClass action in __result.Actions)
+            foreach (var action in __result.Actions)
             {
                 if (action.Name == "Search")
                 {

@@ -1,10 +1,10 @@
 {
   // Server locales
   "set-properties": "Set {{name}} ({{id}}) folded size to: {{size}} and folding time to: {{time}}",
-  "missing-overrideproperties": "Missing override properties for id: %s. Is this intended?",
+  "missing-override-properties": "Missing override properties for id: %s. Is this intended?",
   "added-backpacks": "Added foldable properties to %s backpacks",
   "added-vests": "Added foldable properties to %s vests",
-  "loaded successfully!": "loaded successfully!",
+  "load-success": "loaded successfully!",
 
   // Client locales
   "Container is folded": "Container is folded",

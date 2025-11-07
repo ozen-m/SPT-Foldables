@@ -1,12 +1,11 @@
-﻿using Comfort.Common;
+﻿using System.Reflection;
+using System.Threading.Tasks;
+using Comfort.Common;
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
-using System.Threading.Tasks;
-using UIFixesInterop;
 
 namespace Foldables.Patches.Operations;
 
@@ -23,42 +22,42 @@ public class CallToFoldItemPatch : ModulePatch
     [PatchPrefix]
     protected static bool Prefix(ContextInteractionsAbstractClass __instance)
     {
-        if (__instance.Item_0 is IFoldable foldableItem)
+        if (__instance.Item_0 is not IFoldable foldableItem) return true;
+
+        if (MultiSelectInterop.Count > 1)
         {
-            if (MultiSelect.Count > 1)
-            {
-                MultiSelect.ApplyAll(
-                    (itemContext) =>
+            MultiSelectInterop.ApplyAll(
+                (itemContext) =>
+                {
+                    var multiSelectItem = itemContext.Item;
+                    if (multiSelectItem is IFoldable multiSelectFoldable)
                     {
-                        var multiSelectItem = itemContext.Item;
-                        if (multiSelectItem is IFoldable multiSelectFoldable)
-                        {
-                            var tcs = new TaskCompletionClass();
-                            FoldItemInteraction(__instance.ItemUiContext_1, multiSelectItem, multiSelectFoldable, itemContext, (_) =>
-                            {
-                                tcs.Complete();
-                            });
-                            return tcs.Task;
-                        }
-                        return Task.CompletedTask;
-                    },
-                    foldableItem.Folded ? EItemInfoButton.Unfold : EItemInfoButton.Fold,
-                    false,
-                    __instance.ItemUiContext_1
-                    );
-            }
-            else
-            {
-                FoldItemInteraction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
-            }
-            return false;
+                        var tcs = new TaskCompletionClass();
+                        FoldItemInteraction(
+                            __instance.ItemUiContext_1,
+                            multiSelectItem,
+                            multiSelectFoldable,
+                            itemContext,
+                            (_) => { tcs.Complete(); });
+                        return tcs.Task;
+                    }
+                    return Task.CompletedTask;
+                },
+                foldableItem.Folded ? EItemInfoButton.Unfold : EItemInfoButton.Fold,
+                false,
+                __instance.ItemUiContext_1
+            );
         }
-        return true;
+        else
+        {
+            FoldItemInteraction(__instance.ItemUiContext_1, __instance.Item_0, foldableItem, __instance.ItemContextAbstractClass);
+        }
+        return false;
     }
 
     protected static void FoldItemInteraction(ItemUiContext itemUiContext, Item item, IFoldable foldableItem, ItemContextAbstractClass itemContextAbstractClass, Callback callback = null)
     {
-        // If to fold but not empty, ask if want to spill container contents 
+        // If to fold but not empty, ask if player wants to spill container contents
         if (!foldableItem.Folded && !item.IsEmptyNonLinq())
         {
             _ = HandleNonEmptyFolding(itemUiContext, item, itemContextAbstractClass, callback);
@@ -71,7 +70,7 @@ public class CallToFoldItemPatch : ModulePatch
 
     protected static async Task HandleNonEmptyFolding(ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass, Callback callback = null)
     {
-        var toSpillContents = !Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialog(item);
+        bool toSpillContents = !Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialog(item);
         if (toSpillContents)
         {
             callback += (result) =>

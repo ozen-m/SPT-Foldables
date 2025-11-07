@@ -1,7 +1,7 @@
-﻿using EFT.InventoryLogic;
+﻿using System.Reflection;
+using EFT.InventoryLogic;
 using Foldables.Models;
 using SPT.Reflection.Patching;
-using System.Reflection;
 
 namespace Foldables.Patches.Sizes;
 
@@ -18,29 +18,28 @@ public class CalculateExtraSizePatch : ModulePatch
     [PatchPostfix]
     protected static void Postfix(CompoundItem __instance, FoldableComponent overrideFoldable, bool overrideValue, Slot overrideSlot, Item overrideSlotContent, ref ExtraSize __result)
     {
-        if (__instance is IFoldable foldableItem)
+        if (__instance is not IFoldable foldableItem) return;
+
+        ExtraSize newSize = default;
+
+        // Get size after folding
+        if (overrideFoldable != null)
         {
-            ExtraSize newSize = default;
-
-            // Get size after folding
-            if (overrideFoldable != null)
+            // If to fold, set size after folding
+            if (overrideValue)
             {
-                // If to fold, set size after folding
-                if (overrideValue)
-                {
-                    newSize.ForcedDown -= foldableItem.SizeReduceDown;
-                }
+                newSize.ForcedDown -= foldableItem.SizeReduceDown;
             }
-            // Get current size
-            else
-            {
-                if (foldableItem.Folded)
-                {
-                    newSize.ForcedDown -= foldableItem.SizeReduceDown;
-                }
-            }
-
-            __result = ExtraSize.Merge(__result, newSize);
         }
+        // Get current size
+        else
+        {
+            if (foldableItem.Folded)
+            {
+                newSize.ForcedDown -= foldableItem.SizeReduceDown;
+            }
+        }
+
+        __result = ExtraSize.Merge(__result, newSize);
     }
 }

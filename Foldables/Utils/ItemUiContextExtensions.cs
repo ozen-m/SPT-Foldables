@@ -1,13 +1,13 @@
-﻿using Comfort.Common;
+﻿using System.Collections;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using Comfort.Common;
 using EFT;
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
 using HarmonyLib;
-using System.Collections;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Foldables.Utils;
 
@@ -23,12 +23,12 @@ public static class ItemUiContextExtensions
     /// </summary>
     public static void FoldItem(this ItemUiContext itemUiContext, Item item, Callback callback)
     {
-        if (!InteractionsHandlerClass.CanFold(item, out FoldableComponent foldableComponent))
+        if (!InteractionsHandlerClass.CanFold(item, out var foldableComponent))
         {
             return;
         }
         Singleton<GUISounds>.Instance.PlayUISound(item is IFoldable ? EUISoundType.TacticalClothingApply : EUISoundType.MenuStock);
-        GStruct154<GClass3428> foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
+        var foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
         var inventoryController = InventoryControllerField(itemUiContext);
         inventoryController.TryRunNetworkTransaction(foldEvent, callback);
     }
@@ -52,16 +52,18 @@ public static class ItemUiContextExtensions
         {
             inventoryController.StopProcesses();
             StopFolding();
-            _cancellationTokenSource = new();
+            _cancellationTokenSource = new CancellationTokenSource();
 
             playerInventoryController.Player_0.StartCoroutine(
-                FoldingAction(item,
-                foldableItem.FoldingTime,
-                inventoryController,
-                itemUiContext,
-                itemContextAbstractClass,
-                _cancellationTokenSource.Token,
-                callback));
+                FoldingAction(
+                    item,
+                    foldableItem.FoldingTime,
+                    inventoryController,
+                    itemUiContext,
+                    itemContextAbstractClass,
+                    _cancellationTokenSource.Token,
+                    callback
+                ));
         }
     }
 
@@ -71,12 +73,12 @@ public static class ItemUiContextExtensions
         var itemName = inventoryController.Examined(item) ? item.ShortName : "Unknown item";
         var description = string.Format("Do you want to spill the contents of {0} and fold?".Localized(), itemName.Localized());
 
-        return await itemUiContext.ShowMessageWindow(out var _, description, null, true);
+        return await itemUiContext.ShowMessageWindow(out _, description, null, true);
     }
 
     private static IEnumerator FoldingAction(
         Item item,
-        float seconds, 
+        float seconds,
         InventoryController inventoryController,
         ItemUiContext itemUiContext,
         ItemContextAbstractClass itemContextAbstractClass,
@@ -84,12 +86,12 @@ public static class ItemUiContextExtensions
         Callback callback = null)
     {
         // Use LoadMagazineEvent for our UI
-        IItemOwner owner = item.Owner;
-        GEventArgs7 startFoldEvent = new(null, item, 1, seconds, CommandStatus.Begin, owner);
-        GEventArgs7 stopFoldEvent = new(null, item, 1, seconds, CommandStatus.Succeed, owner);
+        var owner = item.Owner;
+        var startFoldEvent = new GEventArgs7(null, item, 1, seconds, CommandStatus.Begin, owner);
+        var stopFoldEvent = new GEventArgs7(null, item, 1, seconds, CommandStatus.Succeed, owner);
         inventoryController.RaiseLoadMagazineEvent(startFoldEvent);
 
-        Stopwatch timer = Stopwatch.StartNew();
+        var timer = Stopwatch.StartNew();
         while (timer.Elapsed.TotalSeconds < seconds)
         {
             if (token.IsCancellationRequested)

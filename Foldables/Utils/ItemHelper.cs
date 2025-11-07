@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using Comfort.Common;
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
-using System.Collections.Generic;
 
 namespace Foldables.Utils;
 
@@ -10,7 +10,7 @@ public static class ItemHelper
 {
     public static bool IsFoldableFolded(this Item item)
     {
-        return item is IFoldable foldableItem && foldableItem.Folded;
+        return item is IFoldable { Folded: true };
     }
 
     public static void FoldItem(this Item item, Callback callback = null) => ItemUiContext.Instance.FoldItem(item, callback);
@@ -18,17 +18,19 @@ public static class ItemHelper
     /// <summary>
     /// Fold item with delay. Delays only in raid
     /// </summary>
-    public static void FoldItemWithDelay(this Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null) => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+    public static void FoldItemWithDelay(this Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
+        => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback);
 
     /// <summary>
     /// Move contained items to item's parent
     /// </summary>
     /// <param name="rootItem">The item whose contents will be spilled</param>
-    /// <returns>True if possible/succeded</returns>
+    /// <returns>True if possible/succeeded</returns>
     public static bool TryMoveContainedItemsToParent(this Item rootItem, InventoryController inventoryController, bool simulate = true)
     {
         if (rootItem.Parent.Container.ParentItem is InventoryEquipment || rootItem is not CompoundItem compoundItem)
         {
+            // Do not move contents if item is equipped
             return false;
         }
         Stack<GStruct153> operations = new();
@@ -48,7 +50,7 @@ public static class ItemHelper
             }
         }
 
-        var succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
+        bool succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
         if (!simulate && succeeded)
         {
             while (operations.TryPop(out var moveOp))
@@ -81,7 +83,7 @@ public static class ItemHelper
                 {
                     containedItems.Push(item);
                 }
-                while (containedItems.TryPop(out Item containedItem))
+                while (containedItems.TryPop(out var containedItem))
                 {
                     var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
                         containedItem,
@@ -89,7 +91,7 @@ public static class ItemHelper
                         [rootItem.Parent.Container.ParentItem as CompoundItem],
                         InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
                         false // Do not simulate since the next result depends on the last
-                        );
+                    );
                     if (moveResult.Succeeded)
                     {
                         operations.Push(moveResult);
@@ -106,14 +108,13 @@ public static class ItemHelper
 
     public static bool IsEmptyNonLinq(this Item item)
     {
-        if (item is CompoundItem compoundItem)
+        if (item is not CompoundItem compoundItem) return true;
+
+        foreach (var grid in compoundItem.Grids)
         {
-            foreach (StashGridClass grid in compoundItem.Grids)
+            if (grid.ItemCollection.Count > 0)
             {
-                if (grid.ItemCollection.Count > 0)
-                {
-                    return false;
-                }
+                return false;
             }
         }
         return true;

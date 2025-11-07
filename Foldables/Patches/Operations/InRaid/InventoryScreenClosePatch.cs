@@ -1,7 +1,7 @@
-﻿using EFT.UI;
+﻿using System.Reflection;
+using EFT.UI;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
 
 namespace Foldables.Patches.Operations.InRaid;
 

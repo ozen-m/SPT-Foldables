@@ -1,9 +1,9 @@
+using System.Reflection;
 using Comfort.Common;
 using EFT.InventoryLogic;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
 
 namespace Foldables.Patches.Operations;
 
@@ -30,38 +30,37 @@ public class InteractionSwitcherPatch : ModulePatch
             return;
         }
 
-        if (__result.Failed && (button == EItemInfoButton.Fold || button == EItemInfoButton.Unfold))
+        switch (button)
         {
-            // Change failed result from `stock` to `item`
-            __result = foldItemFail;
-        }
-        else if (button == EItemInfoButton.Open && __instance.Item_0_1.IsFoldableFolded())
-        {
-            // If item can't unfold, then fail opening
-            if (__instance.IsInteractive(EItemInfoButton.Unfold).Failed)
+            case EItemInfoButton.Fold or EItemInfoButton.Unfold when __result.Failed:
+                // Change failed result error from `stock` to `item`
+                __result = foldItemFail;
+                break;
+            case EItemInfoButton.Open when __instance.Item_0_1.IsFoldableFolded():
             {
-                __result = openContainerFail;
+                // If item can't unfold, then fail opening
+                if (__instance.IsInteractive(EItemInfoButton.Unfold).Failed)
+                {
+                    __result = openContainerFail;
+                }
+                break;
             }
-        }
-        else if (button == EItemInfoButton.Fold)
-        {
-            if (!Foldables.FoldWhileEquipped.Value && __instance.Item_0_1.Parent.Container.ParentItem is InventoryEquipment)
-            {
+            case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance.Item_0_1.Parent.Container.ParentItem is InventoryEquipment:
+                // Config does not allow folding while item is equipped
                 __result = foldItemEquippedFail;
-            }
-            else if (!__instance.Item_0_1.IsEmptyNonLinq())
+                break;
+            case EItemInfoButton.Fold:
             {
-                if (__instance.Item_0_1.TryMoveContainedItemsToParent(__instance.TraderControllerClass as InventoryController))
+                if (!__instance.Item_0_1.IsEmptyNonLinq())
                 {
-                    // If can spill contents, do not fail
-                    __result = SuccessfulResult.New;
+                    // If container is not empty and can spill contents, do not fail
+                    var inventoryController = __instance.TraderControllerClass as InventoryController;
+                    __result = __instance.Item_0_1.TryMoveContainedItemsToParent(inventoryController)
+                        ? SuccessfulResult.New
+                        : itemsInsideFail;
                 }
-                else
-                {
-                    __result = itemsInsideFail;
-                }
+                break;
             }
         }
     }
 }
-// rip nesting

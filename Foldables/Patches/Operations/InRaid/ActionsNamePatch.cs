@@ -1,13 +1,13 @@
+using System.Reflection;
 using EFT.UI;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using System.Reflection;
 using TMPro;
 
 namespace Foldables.Patches.Operations.InRaid;
 
 /// <summary>
-/// Add (Folded) to folded items inraid
+/// Add (Folded) to folded items in-raid
 /// </summary>
 public class ActionsNamePatch : ModulePatch
 {

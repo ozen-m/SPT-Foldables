@@ -1,8 +1,8 @@
-﻿using EFT.UI.DragAndDrop;
+﻿using System;
+using System.Reflection;
+using EFT.UI.DragAndDrop;
 using Foldables.Models.Items;
 using SPT.Reflection.Patching;
-using System;
-using System.Reflection;
 
 namespace Foldables.Patches.Mappings;
 

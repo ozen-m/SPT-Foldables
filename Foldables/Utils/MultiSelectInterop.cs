@@ -1,14 +1,13 @@
-using BepInEx;
+using System;
+using System.Threading.Tasks;
 using BepInEx.Bootstrap;
 using EFT.InventoryLogic;
 using EFT.UI;
 using HarmonyLib;
-using System;
-using System.Threading.Tasks;
 
-namespace UIFixesInterop;
+namespace Foldables.Utils;
 
-public static class MultiSelect
+public static class MultiSelectInterop
 {
     private static readonly Version _requiredVersion = new(5, 0);
 
@@ -17,18 +16,7 @@ public static class MultiSelect
     private static Action<ItemUiContext, EItemInfoButton, Func<ItemContextAbstractClass, Task>, bool> _applyAllMethod;
 
     /// <value><c>Count</c> represents the number of items in the current selection, null if UI Fixes is not present.</value>
-    public static int Count
-    {
-        get
-        {
-            if (!Loaded())
-            {
-                return 0;
-            }
-
-            return _getCountMethod();
-        }
-    }
+    public static int Count => Loaded() ? _getCountMethod() : 0;
 
     /// <summary>
     /// This method takes a <c>Func</c> and calls it *sequentially* on each item in the current selection.
@@ -51,25 +39,24 @@ public static class MultiSelect
 
     private static bool Loaded()
     {
-        if (!_uiFixesLoaded.HasValue)
-        {
-            bool present = Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out PluginInfo pluginInfo);
-            _uiFixesLoaded = present && pluginInfo.Metadata.Version >= _requiredVersion;
+        if (_uiFixesLoaded.HasValue) return _uiFixesLoaded.Value;
 
-            if (_uiFixesLoaded.Value)
+        bool present = Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out var pluginInfo);
+        _uiFixesLoaded = present && pluginInfo.Metadata.Version >= _requiredVersion;
+
+        if (_uiFixesLoaded.Value)
+        {
+            var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
+            if (multiSelectControllerType != null)
             {
-                var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
-                if (multiSelectControllerType != null)
-                {
-                    var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
-                    _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
-                }
-                var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
-                if (multiSelectType != null)
-                {
-                    var applyAllMethodInfo = AccessTools.Method(multiSelectType, "ApplyAll");
-                    _applyAllMethod = AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContextAbstractClass, Task>, bool>>(applyAllMethodInfo);
-                }
+                var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
+                _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
+            }
+            var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
+            if (multiSelectType != null)
+            {
+                var applyAllMethodInfo = AccessTools.Method(multiSelectType, "ApplyAll");
+                _applyAllMethod = AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContextAbstractClass, Task>, bool>>(applyAllMethodInfo);
             }
         }
 

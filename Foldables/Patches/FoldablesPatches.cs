@@ -1,11 +1,9 @@
-﻿using BepInEx.Bootstrap;
-using Foldables.Patches.Debug;
+﻿using System.Linq;
+using BepInEx.Bootstrap;
 using Foldables.Patches.Mappings;
 using Foldables.Patches.Operations;
 using Foldables.Patches.Operations.InRaid;
 using Foldables.Patches.Sizes;
-using System;
-using System.Linq;
 
 namespace Foldables.Patches;
 
@@ -42,8 +40,5 @@ public class FoldablesPatches
         {
             new InventoryScreenClosePatch().Enable();
         }
-
-        // Debug
-        //new DebugPatches().Enable();
     }
 }
