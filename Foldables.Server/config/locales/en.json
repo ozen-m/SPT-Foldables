@@ -12,6 +12,7 @@
   "Cannot fold the item now": "Cannot fold the item now",
   "Cannot fold the item while moving": "Cannot fold the item while moving",
   "Cannot fold the container with items inside": "Cannot fold the container with items inside",
+  "Cannot fold the container with unsearched items inside": "Cannot fold the container with unsearched items inside",
   "Cannot fold while the item is equipped": "Cannot fold while the item is equipped",
   "Do you want to spill the contents of {0} and fold?": "Do you want to spill the contents of {0} and fold?",
   " (Folded)": " (Folded)"
