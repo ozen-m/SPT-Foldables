@@ -8,25 +8,37 @@ namespace Foldables.Utils;
 
 public static class ItemHelper
 {
-    public static bool IsFoldableFolded(this Item item)
-    {
-        return item is IFoldable { Folded: true };
-    }
+    public static bool IsFoldableFolded(this Item item) => item is IFoldable { Folded: true };
 
-    public static void FoldItem(this Item item, Callback callback = null) => ItemUiContext.Instance.FoldItem(item, callback);
+    public static void FoldItem(this Item item, Callback callback = null)
+        => ItemUiContext.Instance.FoldItem(item, callback);
 
     /// <summary>
     /// Fold item with delay. Delays only in raid
     /// </summary>
-    public static void FoldItemWithDelay(this Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
+    public static void FoldItemWithDelay(
+        this Item item,
+        ItemContextAbstractClass itemContextAbstractClass = null,
+        Callback callback = null)
         => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+
+    /// <summary>
+    /// Check if item is not empty before folding
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public static bool RequiresEmptyingBeforeFold(this Item item)
+        => item is IFoldable { Folded: false } && !item.IsEmptyNonLinq();
 
     /// <summary>
     /// Move contained items to item's parent
     /// </summary>
     /// <param name="rootItem">The item whose contents will be spilled</param>
     /// <returns>True if possible/succeeded</returns>
-    public static bool TryMoveContainedItemsToParent(this Item rootItem, InventoryController inventoryController, bool simulate = true)
+    public static bool TryMoveContainedItemsToParent(
+        this Item rootItem,
+        InventoryController inventoryController,
+        bool simulate = true)
     {
         if (rootItem.Parent.Container.ParentItem is InventoryEquipment || rootItem is not CompoundItem compoundItem)
         {
@@ -35,13 +47,19 @@ public static class ItemHelper
         }
         Stack<GStruct153> operations = new();
 
-        // Fold IFoldable item when simulating - when not simulating, it is assumed item is already folded THEN move items to parent (call to this happens after folding)
+        /*Fold IFoldable item when simulating
+        When not simulating, it is assumed item is already folded
+        THEN move items to parent (call to this happens after folding)*/
         if (simulate && rootItem is IFoldable)
         {
             var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
             if (foldableComponent != null)
             {
-                var foldOp = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+                var foldOp = InteractionsHandlerClass.Fold(
+                    foldableComponent,
+                    !foldableComponent.Folded,
+                    false
+                );
                 if (foldOp.Failed)
                 {
                     return false;
@@ -71,7 +89,11 @@ public static class ItemHelper
         return succeeded;
     }
 
-    private static bool ProcessContainerItems(Item rootItem, StashGridClass[] containers, Stack<GStruct153> operations, InventoryController inventoryController)
+    private static bool ProcessContainerItems(
+        Item rootItem,
+        StashGridClass[] containers,
+        Stack<GStruct153> operations,
+        InventoryController inventoryController)
     {
         Stack<Item> containedItems = new();
         foreach (var container in containers)

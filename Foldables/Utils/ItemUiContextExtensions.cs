@@ -8,12 +8,14 @@ using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
 using HarmonyLib;
+#pragma warning disable CS0618 // Type or member is obsolete, yes we're all using it
 
 namespace Foldables.Utils;
 
 public static class ItemUiContextExtensions
 {
-    public static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> InventoryControllerField = AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
+    public static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> InventoryControllerField =
+        AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
     private static CancellationTokenSource _cancellationTokenSource;
 
     public static bool IsFolding => _cancellationTokenSource != null;
@@ -21,7 +23,11 @@ public static class ItemUiContextExtensions
     /// <summary>
     /// <seealso cref="ItemUiContext.FoldItem"/> with callback
     /// </summary>
-    public static void FoldItem(this ItemUiContext itemUiContext, Item item, Callback callback)
+    public static void FoldItem(
+        this ItemUiContext itemUiContext,
+        Item item,
+        Callback callback,
+        InventoryController inventoryController = null /*Is this really necessary*/)
     {
         if (!InteractionsHandlerClass.CanFold(item, out var foldableComponent))
         {
@@ -29,21 +35,36 @@ public static class ItemUiContextExtensions
         }
         Singleton<GUISounds>.Instance.PlayUISound(item is IFoldable ? EUISoundType.TacticalClothingApply : EUISoundType.MenuStock);
         var foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
-        var inventoryController = InventoryControllerField(itemUiContext);
+        inventoryController ??= InventoryControllerField(itemUiContext);
         inventoryController.TryRunNetworkTransaction(foldEvent, callback);
     }
 
     /// <summary>
     /// Fold Item with Delay. Delays only in raid
     /// </summary>
-    public static void FoldItemWithDelay(this ItemUiContext itemUiContext, Item item, ItemContextAbstractClass itemContextAbstractClass = null, Callback callback = null)
+    public static void FoldItemWithDelay(
+        this ItemUiContext itemUiContext,
+        Item item,
+        ItemContextAbstractClass itemContextAbstractClass = null,
+        Callback callback = null)
     {
-        if (!GClass2340.InRaid || item is not IFoldable foldableItem || foldableItem.FoldingTime <= 0f)
+        if (item is not IFoldable foldableItem)
+        {
+            itemUiContext.FoldItem(item, callback);
+            return;
+        }
+
+        if (!GClass2340.InRaid || foldableItem.FoldingTime <= 0f)
         {
             // Close the "open" grid window when item is folded
             itemContextAbstractClass?.CloseDependentWindows();
 
-            itemUiContext.FoldItem(item, callback);
+            // If to fold but not empty, ask if player wants to spill container contents
+            if (item.RequiresEmptyingBeforeFold())
+                _ = HandleNonEmptyFolding(itemUiContext, item, callback);
+            else
+                itemUiContext.FoldItem(item, callback);
+
             return;
         }
 
@@ -55,7 +76,7 @@ public static class ItemUiContextExtensions
             _cancellationTokenSource = new CancellationTokenSource();
 
             playerInventoryController.Player_0.StartCoroutine(
-                FoldingAction(
+                FoldingDelay(
                     item,
                     foldableItem.FoldingTime,
                     inventoryController,
@@ -64,6 +85,27 @@ public static class ItemUiContextExtensions
                     _cancellationTokenSource.Token,
                     callback
                 ));
+        }
+    }
+
+    private static async Task HandleNonEmptyFolding(ItemUiContext itemUiContext, Item item, Callback callback = null, InventoryController inventoryController = null)
+    {
+        inventoryController ??= InventoryControllerField(itemUiContext);
+        if (item.TryMoveContainedItemsToParent(inventoryController) && (!Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialog(item)))
+        {
+            callback += (result) =>
+            {
+                if (result.Succeed)
+                {
+                    item.TryMoveContainedItemsToParent(inventoryController, false);
+                }
+            };
+            itemUiContext.FoldItem(item, callback);
+        }
+        else
+        {
+            NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
+            callback?.Fail("Cannot fold the container with items inside");
         }
     }
 
@@ -76,7 +118,7 @@ public static class ItemUiContextExtensions
         return await itemUiContext.ShowMessageWindow(out _, description, null, true);
     }
 
-    private static IEnumerator FoldingAction(
+    private static IEnumerator FoldingDelay(
         Item item,
         float seconds,
         InventoryController inventoryController,
@@ -104,26 +146,18 @@ public static class ItemUiContextExtensions
         }
         inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
 
-        // Final check before folding
-        var interactionsSwitcher = itemUiContext.ContextInteractionsSwitcher;
-        interactionsSwitcher.Item_0_1 = item;
-        var foldCheck = interactionsSwitcher.IsInteractive(EItemInfoButton.Fold);
-        if (foldCheck.Succeed)
+        // Close the "open" grid window when item is folded
+        if (itemContextAbstractClass == null)
         {
-            // Close the "open" grid window when item is folded
-            if (itemContextAbstractClass == null)
-            {
-                Foldables.LogSource.LogWarning("ItemUiContextExtensions::FoldingAction Called for delayed folding but itemContextAbstractClass is null");
-            }
-            itemContextAbstractClass?.CloseDependentWindows();
+            Foldables.LogSource.LogWarning("ItemUiContextExtensions::FoldingAction Cannot close dependent windows, itemContextAbstractClass is null");
+        }
+        itemContextAbstractClass?.CloseDependentWindows();
 
-            itemUiContext.FoldItem(item, callback);
-        }
+        // If to fold but not empty, ask if player wants to spill container contents
+        if (item.RequiresEmptyingBeforeFold())
+            _ = HandleNonEmptyFolding(itemUiContext, item, callback, inventoryController);
         else
-        {
-            NotificationManagerClass.DisplayWarningNotification(foldCheck.Error.Localized());
-            callback?.Fail(foldCheck.Error);
-        }
+            itemUiContext.FoldItem(item, callback);
     }
 
     public static void StopFolding()

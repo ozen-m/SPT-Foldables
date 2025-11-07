@@ -35,7 +35,7 @@ public class InteractionSwitcherPatch : ModulePatch
             case EItemInfoButton.Fold or EItemInfoButton.Unfold when __result.Failed:
                 // Change failed result error from `stock` to `item`
                 __result = foldItemFail;
-                break;
+                return;
             case EItemInfoButton.Open when __instance.Item_0_1.IsFoldableFolded():
             {
                 // If item can't unfold, then fail opening
@@ -43,23 +43,20 @@ public class InteractionSwitcherPatch : ModulePatch
                 {
                     __result = openContainerFail;
                 }
-                break;
+                return;
             }
             case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance.Item_0_1.Parent.Container.ParentItem is InventoryEquipment:
                 // Config does not allow folding while item is equipped
                 __result = foldItemEquippedFail;
-                break;
-            case EItemInfoButton.Fold:
+                return;
+            case EItemInfoButton.Fold when !__instance.Item_0_1.IsEmptyNonLinq():
             {
-                if (!__instance.Item_0_1.IsEmptyNonLinq())
-                {
-                    // If container is not empty and can spill contents, do not fail
-                    var inventoryController = __instance.TraderControllerClass as InventoryController;
-                    __result = __instance.Item_0_1.TryMoveContainedItemsToParent(inventoryController)
-                        ? SuccessfulResult.New
-                        : itemsInsideFail;
-                }
-                break;
+                // If container is not empty and can spill contents, do not fail
+                var inventoryController = __instance.TraderControllerClass as InventoryController;
+                __result = __instance.Item_0_1.TryMoveContainedItemsToParent(inventoryController)
+                    ? SuccessfulResult.New
+                    : itemsInsideFail;
+                return;
             }
         }
     }

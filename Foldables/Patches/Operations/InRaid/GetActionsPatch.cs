@@ -83,7 +83,7 @@ public class GetActionsPatch : ModulePatch
                     });
                 }
             },
-            Disabled = !foldableItem.Folded && !rootItem.IsEmptyNonLinq()
+            Disabled = rootItem.RequiresEmptyingBeforeFold()
         });
 
         if (foldableItem.Folded)
