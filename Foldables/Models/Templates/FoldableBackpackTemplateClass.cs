@@ -1,4 +1,6 @@
-﻿namespace Foldables.Models.Templates;
+﻿// ReSharper disable UnassignedField.Global
+
+namespace Foldables.Models.Templates;
 
 public class FoldableBackpackTemplateClass : BackpackTemplateClass, GInterface389
 {

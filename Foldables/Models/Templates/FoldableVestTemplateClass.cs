@@ -1,14 +1,16 @@
+// ReSharper disable UnassignedField.Global
+
 namespace Foldables.Models.Templates;
 
 public class FoldableVestTemplateClass : VestTemplateClass, GInterface389
 {
-	public bool Foldable;
-	public int SizeReduceRight;
-	public int SizeReduceDown;
+    public bool Foldable;
+    public int SizeReduceRight;
+    public int SizeReduceDown;
     public float FoldingTime;
     public string FoldedSlot;
 
-	int GInterface389.SizeReduceRight => SizeReduceRight;
+    int GInterface389.SizeReduceRight => SizeReduceRight;
 
-	string GInterface389.FoldedSlot => FoldedSlot;
+    string GInterface389.FoldedSlot => FoldedSlot;
 }

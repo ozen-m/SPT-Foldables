@@ -6,16 +6,18 @@ using UnityEngine;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.0")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.1")]
 [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
+#pragma warning disable CA2211
     public static ManualLogSource LogSource;
 
     public static ConfigEntry<bool> FoldWhileEquipped;
     public static ConfigEntry<bool> ShowSpillDialog;
     public static ConfigEntry<bool> FoldWhileDragging;
     public static ConfigEntry<KeyboardShortcut> FoldWhileDragHotkey;
+#pragma warning restore CA2211
 
     protected void Awake()
     {

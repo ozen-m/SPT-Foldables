@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using SPTarkov.Server.Core.Models.Common;
 
 namespace Foldables.Models;
@@ -21,8 +22,10 @@ public record ModConfig
     public CellSizeRange[] VestFoldedCellSizes { get; set; }
 
     [JsonPropertyName("Overrides")]
+    [UsedImplicitly]
     public Dictionary<MongoId, OverrideProperties> Overrides { get; set; } = [];
 
     [JsonExtensionData]
+    [UsedImplicitly]
     public Dictionary<string, object> ExtensionData { get; set; } = [];
 }

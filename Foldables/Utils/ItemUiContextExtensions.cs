@@ -8,17 +8,19 @@ using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
 using HarmonyLib;
-#pragma warning disable CS0618 // Type or member is obsolete, yes we're all using it
+
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace Foldables.Utils;
 
 public static class ItemUiContextExtensions
 {
-    public static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> InventoryControllerField =
+    private static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> _inventoryControllerField =
         AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
-    private static CancellationTokenSource _cancellationTokenSource;
 
-    public static bool IsFolding => _cancellationTokenSource != null;
+    private static CancellationTokenSource _foldingCts;
+
+    public static bool IsFolding => _foldingCts != null;
 
     /// <summary>
     /// <seealso cref="ItemUiContext.FoldItem"/> with callback
@@ -35,8 +37,8 @@ public static class ItemUiContextExtensions
         }
         Singleton<GUISounds>.Instance.PlayUISound(item is IFoldable ? EUISoundType.TacticalClothingApply : EUISoundType.MenuStock);
         var foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
-        inventoryController ??= InventoryControllerField(itemUiContext);
-        inventoryController.TryRunNetworkTransaction(foldEvent, callback);
+        inventoryController ??= _inventoryControllerField(itemUiContext);
+        _ = inventoryController.TryRunNetworkTransaction(foldEvent, callback);
     }
 
     /// <summary>
@@ -61,19 +63,19 @@ public static class ItemUiContextExtensions
 
             // If to fold but not empty, ask if player wants to spill container contents
             if (item.RequiresEmptyingBeforeFold())
-                _ = HandleNonEmptyFolding(itemUiContext, item, callback);
+                _ = HandleNonEmptyFoldingAsync(itemUiContext, item, callback);
             else
                 itemUiContext.FoldItem(item, callback);
 
             return;
         }
 
-        var inventoryController = InventoryControllerField(itemUiContext);
+        var inventoryController = _inventoryControllerField(itemUiContext);
         if (inventoryController is Player.PlayerInventoryController playerInventoryController)
         {
             inventoryController.StopProcesses();
             StopFolding();
-            _cancellationTokenSource = new CancellationTokenSource();
+            _foldingCts = new CancellationTokenSource();
 
             playerInventoryController.Player_0.StartCoroutine(
                 FoldingDelay(
@@ -82,16 +84,16 @@ public static class ItemUiContextExtensions
                     inventoryController,
                     itemUiContext,
                     itemContextAbstractClass,
-                    _cancellationTokenSource.Token,
+                    _foldingCts.Token,
                     callback
                 ));
         }
     }
 
-    private static async Task HandleNonEmptyFolding(ItemUiContext itemUiContext, Item item, Callback callback = null, InventoryController inventoryController = null)
+    private static async Task HandleNonEmptyFoldingAsync(ItemUiContext itemUiContext, Item item, Callback callback = null, InventoryController inventoryController = null)
     {
-        inventoryController ??= InventoryControllerField(itemUiContext);
-        if (item.TryMoveContainedItemsToParent(inventoryController) && (!Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialog(item)))
+        inventoryController ??= _inventoryControllerField(itemUiContext);
+        if (item.TryMoveContainedItemsToParent(inventoryController) && (!Foldables.ShowSpillDialog.Value || await itemUiContext.ShowSpillAndFoldDialogAsync(item)))
         {
             callback += (result) =>
             {
@@ -109,9 +111,9 @@ public static class ItemUiContextExtensions
         }
     }
 
-    public static async Task<bool> ShowSpillAndFoldDialog(this ItemUiContext itemUiContext, Item item)
+    private static async Task<bool> ShowSpillAndFoldDialogAsync(this ItemUiContext itemUiContext, Item item)
     {
-        var inventoryController = InventoryControllerField(itemUiContext);
+        var inventoryController = _inventoryControllerField(itemUiContext);
         var itemName = inventoryController.Examined(item) ? item.ShortName : "Unknown item";
         var description = string.Format("Do you want to spill the contents of {0} and fold?".Localized(), itemName.Localized());
 
@@ -155,15 +157,15 @@ public static class ItemUiContextExtensions
 
         // If to fold but not empty, ask if player wants to spill container contents
         if (item.RequiresEmptyingBeforeFold())
-            _ = HandleNonEmptyFolding(itemUiContext, item, callback, inventoryController);
+            _ = HandleNonEmptyFoldingAsync(itemUiContext, item, callback, inventoryController);
         else
             itemUiContext.FoldItem(item, callback);
     }
 
     public static void StopFolding()
     {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource?.Dispose();
-        _cancellationTokenSource = null;
+        _foldingCts?.Cancel();
+        _foldingCts?.Dispose();
+        _foldingCts = null;
     }
 }

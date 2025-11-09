@@ -15,14 +15,17 @@ public class FoldablesPatches
         new MappingsPatches().Enable();
 
         // Operations
-        new SearchableViewPatches().Enable();
+        // Searchable View
+        new OnAddToSlotPatch().Enable();
+        new OnRemoveFromSlotPatch().Enable();
+        new SearchableItemViewShowPatch().Enable();
         //new SoundPatches().Enable();
         new UnfoldOnOpenInteractionPatch().Enable();
         new InteractionSwitcherPatch().Enable();
         new OnDragPatch().Enable();
         new ItemNamePatch().Enable();
         new FindLocationPatch().Enable();
-        // In raid
+        // In-raid
         new GetActionsPatch().Enable();
         new ActionsNamePatch().Enable();
         new CallToFoldItemPatch().Enable();

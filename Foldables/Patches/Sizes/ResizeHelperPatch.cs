@@ -24,7 +24,7 @@ public class ResizeHelperPatch : ModulePatch
         }
         Item item2 = resizeAction is InteractionsHandlerClass.EResizeAction.Fold or InteractionsHandlerClass.EResizeAction.Unfold ? item : location.Container.ParentItem;
         GInterface407 gInterface = default(GStruct424);
-        while (item2 is CompoundItem compoundItem && compoundItem is Weapon or Mod or IFoldable && compoundItem.Parent is not GClass3390)
+        while (item2 is CompoundItem compoundItem and (Weapon or Mod or IFoldable) && compoundItem.Parent is not GClass3390)
         {
             if (compoundItem.Parent is GClass3393)
             {

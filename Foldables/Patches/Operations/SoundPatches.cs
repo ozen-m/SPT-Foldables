@@ -14,7 +14,7 @@ namespace Foldables.Patches.Operations;
 [Obsolete($"Bypassed by {nameof(ItemHelper.FoldItem)} with callback")]
 public class SoundPatches
 {
-    public static bool InPatch;
+    private static bool _inPatch;
 
     public void Enable()
     {
@@ -34,14 +34,14 @@ public class SoundPatches
         {
             if (item is IFoldable)
             {
-                InPatch = true;
+                _inPatch = true;
             }
         }
 
         [PatchPostfix]
         protected static void Postfix()
         {
-            InPatch = false;
+            _inPatch = false;
         }
     }
 
@@ -55,7 +55,7 @@ public class SoundPatches
         [PatchPrefix]
         protected static void Prefix(ref EUISoundType soundType)
         {
-            if (InPatch && soundType == EUISoundType.MenuStock)
+            if (_inPatch && soundType == EUISoundType.MenuStock)
             {
                 soundType = EUISoundType.TacticalClothingApply;
             }

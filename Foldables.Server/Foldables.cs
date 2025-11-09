@@ -24,7 +24,7 @@ public class Foldables(
     ServerLocalisationService serverLocalisationService
 ) : IOnLoad
 {
-    public static ModConfig ModConfig { get; protected set; } = new();
+    public static ModConfig ModConfig { get; private set; } = new();
 
     public Task OnLoad()
     {
@@ -171,7 +171,7 @@ public class Foldables(
         }
     }
 
-    protected void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
+    private void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
     {
         TemplateItem[] itemTemplates = templates.ToArray();
         var (minGridCount, maxGridCount) = GetMinMaxGridCount(itemTemplates.Select(i => i.Properties));
@@ -196,7 +196,7 @@ public class Foldables(
             CommonUtils.LogInfo("added-vests".Localized(itemTemplates.Length));
     }
 
-    protected bool GetIsFoldable(MongoId itemId)
+    private static bool GetIsFoldable(MongoId itemId)
     {
         if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties))
             return overrideProperties.Foldable;
@@ -204,7 +204,7 @@ public class Foldables(
         return true;
     }
 
-    protected double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)
+    private static double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)
     {
         if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.FoldingTime.HasValue)
             return overrideProperties.FoldingTime.Value;
@@ -219,7 +219,7 @@ public class Foldables(
         return Math.Round(minFoldTime + (maxFoldTime - minFoldTime) * scale, 2);
     }
 
-    protected ItemSize GetReduceCellSize(MongoId itemId, int gridCount, TemplateItemProperties properties, MongoId baseClass)
+    private static ItemSize GetReduceCellSize(MongoId itemId, int gridCount, TemplateItemProperties properties, MongoId baseClass)
     {
         ItemSize foldedCellSize;
         if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.ItemSize != null)
@@ -238,7 +238,7 @@ public class Foldables(
         };
     }
 
-    protected ItemSize GetFoldedCellSize(int gridCount, MongoId baseClass)
+    private static ItemSize GetFoldedCellSize(int gridCount, MongoId baseClass)
     {
         CellSizeRange[] foldedCellSizes;
         if (baseClass == BaseClasses.BACKPACK)
@@ -258,7 +258,7 @@ public class Foldables(
         return foldedCellSizes[0].CellSize;
     }
 
-    public static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
+    private static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
     {
         var min = int.MaxValue;
         var max = int.MinValue;

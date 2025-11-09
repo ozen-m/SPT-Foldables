@@ -1,19 +1,21 @@
 using EFT.InventoryLogic;
 using Foldables.Models.Templates;
+using JetBrains.Annotations;
 
 namespace Foldables.Models.Items;
 
 public class FoldableVestItemClass : VestItemClass, IFoldable
 {
     [GAttribute26]
+    [UsedImplicitly]
     public readonly FoldableComponent Foldable;
 
-    public FoldableVestTemplateClass FoldableVestTemplateClass { get; }
+    private readonly FoldableVestTemplateClass _foldableVestTemplateClass;
 
     public FoldableVestItemClass(string id, FoldableVestTemplateClass template)
         : base(id, template)
     {
-        FoldableVestTemplateClass = template;
+        _foldableVestTemplateClass = template;
         if (template.Foldable)
         {
             Foldable = new FoldableComponent(this, template);
@@ -34,11 +36,11 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 
     public int SizeReduceRight => Foldable.SizeReduceRight;
 
-    public int SizeReduceDown => FoldableVestTemplateClass.SizeReduceDown;
+    public int SizeReduceDown => _foldableVestTemplateClass.SizeReduceDown;
 
-    public float FoldingTime => FoldableVestTemplateClass.FoldingTime;
+    public float FoldingTime => _foldableVestTemplateClass.FoldingTime;
 
-    public string FoldedSlot => FoldableVestTemplateClass.FoldedSlot;
+    public string FoldedSlot => _foldableVestTemplateClass.FoldedSlot;
 
     public override int GetHashSum()
     {

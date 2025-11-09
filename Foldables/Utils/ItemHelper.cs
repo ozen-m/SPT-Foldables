@@ -75,7 +75,7 @@ public static class ItemHelper
             {
                 // Need to undo since we didn't simulate
                 moveOp.Value.RollBack();
-                inventoryController.TryRunNetworkTransaction(moveOp);
+                _ = inventoryController.TryRunNetworkTransaction(moveOp);
             }
         }
         else
@@ -87,6 +87,20 @@ public static class ItemHelper
         }
 
         return succeeded;
+    }
+
+    public static bool IsEmptyNonLinq(this Item item)
+    {
+        if (item is not CompoundItem compoundItem) return true;
+
+        foreach (var grid in compoundItem.Grids)
+        {
+            if (grid.ItemCollection.Count > 0)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static bool ProcessContainerItems(
@@ -123,20 +137,6 @@ public static class ItemHelper
                         return false;
                     }
                 }
-            }
-        }
-        return true;
-    }
-
-    public static bool IsEmptyNonLinq(this Item item)
-    {
-        if (item is not CompoundItem compoundItem) return true;
-
-        foreach (var grid in compoundItem.Grids)
-        {
-            if (grid.ItemCollection.Count > 0)
-            {
-                return false;
             }
         }
         return true;

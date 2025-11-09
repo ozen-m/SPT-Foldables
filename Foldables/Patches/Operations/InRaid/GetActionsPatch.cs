@@ -51,7 +51,7 @@ public class GetActionsPatch : ModulePatch
                         // Might appear that the operation failed (due to delay in callback) so do not simulate
                         if (successful)
                         {
-                            controller.TryRunNetworkTransaction(foldingResult, (_) =>
+                            _ = controller.TryRunNetworkTransaction(foldingResult, (_) =>
                             {
                                 // "Take" action missing unless forced to update interactions
                                 owner.InteractionsChangedHandler();

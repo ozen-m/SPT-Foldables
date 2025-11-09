@@ -28,10 +28,7 @@ public static class MultiSelectInterop
     /// <param name="itemUiContext">Optional <c>ItemUiContext</c>; will use <c>ItemUiContext.Instance</c> if not provided.</param>
     public static void ApplyAll(Func<ItemContextAbstractClass, Task> func, EItemInfoButton interaction, bool allOrNothing, ItemUiContext itemUiContext = null)
     {
-        if (!Loaded())
-        {
-            return;
-        }
+        if (!Loaded()) return;
 
         itemUiContext = itemUiContext != null ? itemUiContext : ItemUiContext.Instance;
         _applyAllMethod(itemUiContext, interaction, func, allOrNothing);
