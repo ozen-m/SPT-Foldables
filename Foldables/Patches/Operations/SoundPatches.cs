@@ -22,6 +22,7 @@ public class SoundPatches
         new PlayUISoundPatch().Enable();
     }
 
+    [IgnoreAutoPatch]
     public class FoldItemPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -45,6 +46,7 @@ public class SoundPatches
         }
     }
 
+    [IgnoreAutoPatch]
     public class PlayUISoundPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

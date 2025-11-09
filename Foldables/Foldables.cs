@@ -1,7 +1,11 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Foldables.Patches;
+using Foldables.Models.Items;
+using Foldables.Models.Templates;
+using Foldables.Patches.Operations.InRaid;
+using SPT.Reflection.Patching;
 using UnityEngine;
 
 namespace Foldables;
@@ -10,6 +14,9 @@ namespace Foldables;
 [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
+    private const string BackpackId = "5448e53e4bdc2d60728b4567";
+    private const string VestId = "5448e5284bdc2dcb718b4567";
+
 #pragma warning disable CA2211
     public static ManualLogSource LogSource;
 
@@ -28,6 +35,35 @@ public class Foldables : BaseUnityPlugin
         FoldWhileDragging = Config.Bind("Experimental", "Fold While Dragging", false, new ConfigDescription("Enable folding/unfolding while dragging an item using a hotkey", null, new ConfigurationManagerAttributes() { Order = 1, IsAdvanced = true }));
         FoldWhileDragHotkey = Config.Bind("Experimental", "Dragging Hotkey", new KeyboardShortcut(KeyCode.None), new ConfigDescription("Key used to fold/unfold while dragging", null, new ConfigurationManagerAttributes() { Order = 0, IsAdvanced = true }));
 
-        new FoldablesPatches().Enable();
+        // Mappings
+        // Backpacks
+        TemplateIdToObjectMappingsClass.TypeTable[BackpackId] = typeof(FoldableBackpackItemClass);
+        TemplateIdToObjectMappingsClass.TemplateTypeTable[BackpackId] = typeof(FoldableBackpackTemplateClass);
+        TemplateIdToObjectMappingsClass.ItemConstructors[BackpackId] = (id, template) => new FoldableBackpackItemClass(id, (FoldableBackpackTemplateClass)template);
+
+        // Vests
+        TemplateIdToObjectMappingsClass.TypeTable[VestId] = typeof(FoldableVestItemClass);
+        TemplateIdToObjectMappingsClass.TemplateTypeTable[VestId] = typeof(FoldableVestTemplateClass);
+        TemplateIdToObjectMappingsClass.ItemConstructors[VestId] = (id, template) => new FoldableVestItemClass(id, (FoldableVestTemplateClass)template);
+
+        /*AddToMappingsClass(BackpackId, typeof(FoldableBackpackItemClass), typeof(FoldableBackpackTemplateClass));
+        AddToMappingsClass(VestId, typeof(FoldableVestItemClass), typeof(FoldableVestTemplateClass));*/
+
+        var patchManager = new PatchManager(this, true);
+        patchManager.EnablePatches();
+
+        // Mod compatibilities
+        if (Chainloader.PluginInfos.ContainsKey("com.ozen.continuousloadammo"))
+        {
+            new InventoryScreenClosePatch().Enable();
+        }
     }
+
+    /*private static void AddToMappingsClass(string itemId, Type itemType, Type itemTemplateType)
+    {
+        TemplateIdToObjectMappingsClass.TypeTable[itemId] = itemType;
+        TemplateIdToObjectMappingsClass.TemplateTypeTable[itemId] = itemTemplateType;
+        TemplateIdToObjectMappingsClass.ItemConstructors[itemId] = (id, template) =>
+            (Item)Activator.CreateInstance(itemType, id, template);
+    }*/
 }

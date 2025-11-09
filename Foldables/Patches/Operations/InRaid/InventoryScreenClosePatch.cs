@@ -8,6 +8,7 @@ namespace Foldables.Patches.Operations.InRaid;
 /// <summary>
 /// ContinuousLoadAmmo compatibility
 /// </summary>
+[IgnoreAutoPatch]
 public class InventoryScreenClosePatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
