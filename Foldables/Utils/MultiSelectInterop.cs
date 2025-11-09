@@ -33,7 +33,7 @@ public static class MultiSelectInterop
             return;
         }
 
-        itemUiContext ??= ItemUiContext.Instance;
+        itemUiContext = itemUiContext != null ? itemUiContext : ItemUiContext.Instance;
         _applyAllMethod(itemUiContext, interaction, func, allOrNothing);
     }
 
