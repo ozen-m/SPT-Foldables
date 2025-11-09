@@ -7,94 +7,94 @@
     <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
     <Authors>ozen</Authors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.25.*-*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.*-*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.*-*" PrivateAssets="all" />
+    <PackageReference Include="RoR2.BepInEx.Analyzers" Version="1.0.*-*" PrivateAssets="all" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="ConfigurationManager">
-      <HintPath>..\..\..\BepInEx\plugins\spt\ConfigurationManager\ConfigurationManager.dll</HintPath>
+      <HintPath>$(SPTPath)BepInEx\plugins\spt\ConfigurationManager\ConfigurationManager.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>$(SPTPath)BepInEx\core\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ItemComponent.Types">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\ItemComponent.Types.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\ItemComponent.Types.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="ItemTemplate.Types">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\ItemTemplate.Types.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\ItemTemplate.Types.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Sirenix.Serialization">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Sirenix.Serialization.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Sirenix.Serialization.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="spt-reflection">
-      <HintPath>..\..\..\BepInEx\plugins\spt\spt-reflection.dll</HintPath>
+      <HintPath>$(SPTPath)BepInEx\plugins\spt\spt-reflection.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\..\..\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(SPTPath)BepInEx\core\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Comfort">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Comfort.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Comfort.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>..\..\..\EscapeFromTarkov_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  
 
-  <Target Name="CopyOutput" AfterTargets="Build">
+  <Target Name="SetOutput" AfterTargets="Build">
     <PropertyGroup>
-      <DestDir>$(ProjectDir)..\..\..\BepInEx\plugins\$(Authors)-$(AssemblyName)</DestDir>
-      <ReleaseDir Condition="'$(Configuration)' == 'Release'">$(ProjectDir)\..\Dist\$(Authors)-$(AssemblyName)\BepInEx\plugins\$(Authors)-$(AssemblyName)</ReleaseDir>
+      <DestDir>BepInEx\plugins\$(Authors)-$(AssemblyName)</DestDir>
     </PropertyGroup>
     <ItemGroup>
       <OutputDLL Include="$(TargetPath)" />
       <PDB Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' != 'Release'" />
     </ItemGroup>
-    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(DestDir)" />
-    <Copy SourceFiles="@(PDB)" DestinationFolder="$(DestDir)" Condition="'$(Configuration)' != 'Release'"/>
-
-    <!-- Release -->
-    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(ReleaseDir)" Condition="'$(Configuration)' == 'Release'" />
-    <ZipDirectory SourceDirectory="$(ProjectDir)\..\Dist\$(Authors)-$(RootNamespace)" DestinationFile="$(ProjectDir)\..\Dist\$(Authors)-$(AssemblyName)-$(Version).zip" Overwrite="true" Condition="'$(Configuration)' == 'Release'" />
   </Target>
 </Project>
