@@ -13,15 +13,15 @@ public static class CommonUtils
     public static ServerLocalisationService ServerLocalisationService { get; set; }
     private static ModConfig ModConfig => Foldables.ModConfig;
 
-    public static void LogSuccess(string message) => Logger?.Success(LogPrefix + message);
+    public static void LogSuccess(object message) => Logger?.Success(LogPrefix + message);
 
-    public static void LogInfo(string message) => Logger?.Info(LogPrefix + message);
+    public static void LogInfo(object message) => Logger?.Info(LogPrefix + message);
 
-    public static void LogWarning(string message) => Logger?.Warning(LogPrefix + message);
+    public static void LogWarning(object message) => Logger?.Warning(LogPrefix + message);
 
-    public static void LogError(string message) => Logger?.Error(LogPrefix + message);
+    public static void LogError(object message) => Logger?.Error(LogPrefix + message);
 
-    public static void LogDebug(string message)
+    public static void LogDebug(object message)
     {
         if (ModConfig.DebugLogs)
         {
@@ -30,6 +30,8 @@ public static class CommonUtils
     }
 
     public static ItemSize Swap(this ItemSize itemSize) => new() { Width = itemSize.Height, Height = itemSize.Width };
+    
+    public static int GetArea(this ItemSize itemSize) => itemSize.Width * itemSize.Height;
 
     public static string Localized(this string key, object args = null) => ServerLocalisationService?.GetText(key, args);
 

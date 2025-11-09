@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using Foldables.Models;
 using Foldables.Utils;
+using JetBrains.Annotations;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
 using SPTarkov.Server.Core.Helpers;
@@ -48,6 +49,12 @@ public class Foldables(
             .Values
             .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && GetIsFoldable(i.Id) && !i.Properties!.Slots!.Any());
         AddFoldableProperties(vestsItemTemplates, BaseClasses.VEST);
+
+        var headphonesItemTemplates = items
+            .Values
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id));
+        AddFoldableProperties(headphonesItemTemplates, BaseClasses.HEADPHONES);
+
 
         CommonUtils.LogSuccess("load-success".Localized());
         return Task.CompletedTask;
@@ -171,29 +178,51 @@ public class Foldables(
         }
     }
 
-    private void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
+    private static void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
     {
         TemplateItem[] itemTemplates = templates.ToArray();
-        var (minGridCount, maxGridCount) = GetMinMaxGridCount(itemTemplates.Select(i => i.Properties));
-        foreach (var itemTemplate in itemTemplates)
-        {
-            TemplateItemProperties itemProperties = itemTemplate.Properties ?? new();
-            int gridCount = GetGridCount(itemProperties);
-            ItemSize reduceCellSize = GetReduceCellSize(itemTemplate.Id, gridCount, itemProperties, baseClass);
-            double foldingTime = GetFoldingTime(itemTemplate.Id, gridCount, minGridCount, maxGridCount);
+        var (minSlotCount, maxSlotCount) = GetMinMaxSlotCount(itemTemplates.Select(i => i.Properties));
 
-            itemProperties.Foldable = true;
-            itemProperties.SizeReduceRight = reduceCellSize.Width;
-            itemProperties.ExtensionData!["SizeReduceDown"] = reduceCellSize.Height;
-            itemProperties.ExtensionData!["FoldingTime"] = foldingTime;
+        var lessCounter = 0;
+        itemTemplates
+            .AsParallel()
+            .ForAll(itemTemplate => ProcessTemplate(itemTemplate, baseClass, minSlotCount, maxSlotCount, ref lessCounter));
 
-            CommonUtils.LogDebug("set-properties".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id, size = GetCellSize(itemProperties), time = foldingTime }));
-        }
-
+        var updatedCount = itemTemplates.Length - lessCounter;
         if (baseClass == BaseClasses.BACKPACK)
-            CommonUtils.LogInfo("added-backpacks".Localized(itemTemplates.Length));
+            CommonUtils.LogInfo("added-backpacks".Localized(updatedCount));
         else if (baseClass == BaseClasses.VEST)
-            CommonUtils.LogInfo("added-vests".Localized(itemTemplates.Length));
+            CommonUtils.LogInfo("added-vests".Localized(updatedCount));
+        else if (baseClass == BaseClasses.HEADPHONES)
+            CommonUtils.LogInfo("added-headphones".Localized(updatedCount));
+    }
+
+    private static void ProcessTemplate(TemplateItem itemTemplate, MongoId baseClass, int minSlotCount, int maxSlotCount, ref int lessCounter)
+    {
+        var itemProperties = itemTemplate.Properties ?? new TemplateItemProperties();
+        int slotCount = GetSlotCount(itemProperties);
+        ItemSize reduceCellSize = GetReduceCellSize(itemTemplate.Id, slotCount, itemProperties, baseClass);
+        if (reduceCellSize is null)
+        {
+            // Current size and folded size is the same, skip
+            lessCounter++;
+            CommonUtils.LogDebug("set-properties-skip".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id }));
+            return;
+        }
+        double foldingTime = GetFoldingTime(itemTemplate.Id, slotCount, minSlotCount, maxSlotCount, baseClass);
+
+        itemProperties.Foldable = true;
+        itemProperties.SizeReduceRight = reduceCellSize.Width;
+        itemProperties.ExtensionData!["SizeReduceDown"] = reduceCellSize.Height;
+        itemProperties.ExtensionData!["FoldingTime"] = foldingTime;
+
+        CommonUtils.LogDebug("set-properties".Localized(new
+        {
+            name = itemTemplate.Name,
+            id = itemTemplate.Id,
+            size = GetCellSize(itemProperties),
+            time = foldingTime
+        }));
     }
 
     private static bool GetIsFoldable(MongoId itemId)
@@ -204,10 +233,12 @@ public class Foldables(
         return true;
     }
 
-    private static double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount)
+    private static double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount, MongoId baseClass)
     {
         if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.FoldingTime.HasValue)
             return overrideProperties.FoldingTime.Value;
+        if (ModConfig.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties) && baseClassOverrideProperties.FoldingTime.HasValue)
+            return baseClassOverrideProperties.FoldingTime.Value;
 
         double minFoldTime = ModConfig.MinFoldingTime;
         double maxFoldTime = ModConfig.MaxFoldingTime;
@@ -219,13 +250,23 @@ public class Foldables(
         return Math.Round(minFoldTime + (maxFoldTime - minFoldTime) * scale, 2);
     }
 
-    private static ItemSize GetReduceCellSize(MongoId itemId, int gridCount, TemplateItemProperties properties, MongoId baseClass)
+    /// <summary>
+    /// Calculate the ReduceSize width and height properties for a given slotCount
+    /// </summary>
+    /// <param name="slotCount">Can be either the grid count or cell size of the item</param>
+    /// <returns>null if slotCount is the same as the resulting folded size</returns>
+    [CanBeNull]
+    private static ItemSize GetReduceCellSize(MongoId itemId, int slotCount, TemplateItemProperties properties, MongoId baseClass)
     {
         ItemSize foldedCellSize;
         if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.ItemSize != null)
             foldedCellSize = overrideProperties.ItemSize;
+        else if (ModConfig.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties) && baseClassOverrideProperties.ItemSize != null)
+            foldedCellSize = baseClassOverrideProperties.ItemSize;
         else
-            foldedCellSize = GetFoldedCellSize(gridCount, baseClass);
+            foldedCellSize = GetFoldedCellSize(slotCount, baseClass);
+
+        if (slotCount == foldedCellSize.GetArea()) return null;
 
         if (properties.Width > properties.Height)
         {
@@ -245,6 +286,8 @@ public class Foldables(
             foldedCellSizes = ModConfig.BackpackFoldedCellSizes;
         else if (baseClass == BaseClasses.VEST)
             foldedCellSizes = ModConfig.VestFoldedCellSizes;
+        else if (baseClass == BaseClasses.HEADPHONES)
+            foldedCellSizes = ModConfig.HeadphonesFoldedCellSizes;
         else
             throw new ArgumentException($"Cannot get folded cell size for unrecognized base class: {baseClass}");
 
@@ -258,19 +301,29 @@ public class Foldables(
         return foldedCellSizes[0].CellSize;
     }
 
-    private static (int min, int max) GetMinMaxGridCount(IEnumerable<TemplateItemProperties> itemsProperties)
+    private static (int min, int max) GetMinMaxSlotCount(IEnumerable<TemplateItemProperties> itemsProperties)
     {
         var min = int.MaxValue;
         var max = int.MinValue;
-
         foreach (var itemProperties in itemsProperties)
         {
-            int gridCount = GetGridCount(itemProperties);
-            if (gridCount < min) min = gridCount;
-            if (gridCount > max) max = gridCount;
+            int slotCount = GetSlotCount(itemProperties);
+            if (slotCount < min) min = slotCount;
+            if (slotCount > max) max = slotCount;
         }
 
         return (min, max);
+    }
+
+    /// <returns>The grid count of an item, or cell size if the item has no grids</returns>
+    public static int GetSlotCount(TemplateItemProperties properties)
+    {
+        if (properties.Grids != null && properties.Grids.Any())
+        {
+            return properties.Grids!.Sum(g => g.Properties!.CellsH * g.Properties.CellsV).GetValueOrDefault();
+        }
+
+        return properties.Width.GetValueOrDefault() * properties.Height.GetValueOrDefault();
     }
 
     public static ItemSize GetCellSize(TemplateItemProperties properties) =>
@@ -279,7 +332,4 @@ public class Foldables(
             Width = properties.Width.GetValueOrDefault() - properties.SizeReduceRight.GetValueOrDefault(),
             Height = properties.Height.GetValueOrDefault() - (int)(properties.ExtensionData!.GetValueOrDefault("SizeReduceDown") ?? 0)
         };
-
-    public static int GetGridCount(TemplateItemProperties properties) =>
-        properties.Grids!.Sum(g => g.Properties!.CellsH * g.Properties.CellsV).GetValueOrDefault();
 }

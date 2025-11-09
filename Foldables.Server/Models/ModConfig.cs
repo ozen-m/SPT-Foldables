@@ -20,6 +20,9 @@ public record ModConfig
 
     [JsonPropertyName("VestFoldedCellSizes")]
     public CellSizeRange[] VestFoldedCellSizes { get; set; }
+    
+    [JsonPropertyName("HeadphonesFoldedCellSizes")]
+    public CellSizeRange[] HeadphonesFoldedCellSizes { get; set; }
 
     [JsonPropertyName("Overrides")]
     [UsedImplicitly]

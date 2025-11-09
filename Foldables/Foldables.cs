@@ -8,6 +8,8 @@ using Foldables.Patches.Operations.InRaid;
 using SPT.Reflection.Patching;
 using UnityEngine;
 
+#pragma warning disable CA2211
+
 namespace Foldables;
 
 [BepInPlugin("com.ozen.foldables", "Foldables", "1.0.1")]
@@ -16,15 +18,13 @@ public class Foldables : BaseUnityPlugin
 {
     private const string BackpackId = "5448e53e4bdc2d60728b4567";
     private const string VestId = "5448e5284bdc2dcb718b4567";
+    private const string HeadphonesId = "5645bcb74bdc2ded0b8b4578";
 
-#pragma warning disable CA2211
     public static ManualLogSource LogSource;
-
     public static ConfigEntry<bool> FoldWhileEquipped;
     public static ConfigEntry<bool> ShowSpillDialog;
     public static ConfigEntry<bool> FoldWhileDragging;
     public static ConfigEntry<KeyboardShortcut> FoldWhileDragHotkey;
-#pragma warning restore CA2211
 
     protected void Awake()
     {
@@ -45,9 +45,15 @@ public class Foldables : BaseUnityPlugin
         TemplateIdToObjectMappingsClass.TypeTable[VestId] = typeof(FoldableVestItemClass);
         TemplateIdToObjectMappingsClass.TemplateTypeTable[VestId] = typeof(FoldableVestTemplateClass);
         TemplateIdToObjectMappingsClass.ItemConstructors[VestId] = (id, template) => new FoldableVestItemClass(id, (FoldableVestTemplateClass)template);
+        
+        // Headphones
+        TemplateIdToObjectMappingsClass.TypeTable[HeadphonesId] = typeof(FoldableHeadphonesItemClass);
+        TemplateIdToObjectMappingsClass.TemplateTypeTable[HeadphonesId] = typeof(FoldableHeadphonesTemplateClass);
+        TemplateIdToObjectMappingsClass.ItemConstructors[HeadphonesId] = (id, template) => new FoldableHeadphonesItemClass(id, (FoldableHeadphonesTemplateClass)template);
 
         /*AddToMappingsClass(BackpackId, typeof(FoldableBackpackItemClass), typeof(FoldableBackpackTemplateClass));
-        AddToMappingsClass(VestId, typeof(FoldableVestItemClass), typeof(FoldableVestTemplateClass));*/
+        AddToMappingsClass(VestId, typeof(FoldableVestItemClass), typeof(FoldableVestTemplateClass));
+        AddToMappingsClass(VestId, typeof(FoldableHeadphonesItemClass), typeof(FoldableHeadphonesTemplateClass));*/
 
         var patchManager = new PatchManager(this, true);
         patchManager.EnablePatches();

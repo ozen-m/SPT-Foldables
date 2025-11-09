@@ -1,84 +1,104 @@
 {
-	"MaxFoldingTime": 5,
-
-	// Advanced configuration
-	"DebugLogs": false,
-	"Overrides": {
-		// Sample override for santa's backpack
-		"61b9e1aaef9a1b5d6a79899a": {
-			"FoldedSize": {
-				"width": 3,
-				"height": 3
-			},
-			"FoldingTime": 5
-		},
-		// Disable dev backpack. Do NOT remove - will mess with cell sizes if removed.
-		"56e294cdd2720b603a8b4575": {
-			"Foldable": false
-		}
-	},
-	"BackpackFoldedCellSizes": [
-		{
-			"MaxGridCount": 15,
-			"CellSize": {
-				"width": 1,
-				"height": 2
-			}
-		},
-		{
-			"MaxGridCount": 24,
-			"CellSize": {
-				"width": 2,
-				"height": 2
-			}
-		},
-		{
-			"MaxGridCount": 34,
-			"CellSize": {
-				"width": 2,
-				"height": 3
-			}
-		},
-		{
-			"MaxGridCount": 42,
-			"CellSize": {
-				"width": 2,
-				"height": 4
-			}
-		},
-		{
-			// MaxGridCount must be 0 for default cell size
-			"MaxGridCount": 0,
-			// Default cell size, for gridCount > 42
-			"CellSize": {
-				"width": 3,
-				"height": 3
-			}
-		}
-	],
-	"VestFoldedCellSizes": [
-		{
-			"MaxGridCount": 15,
-			"CellSize": {
-				"width": 1,
-				"height": 2
-			}
-		},
-		{
-			"MaxGridCount": 24,
-			"CellSize": {
-				"width": 1,
-				"height": 3
-			}
-		},
-		{
-			// MaxGridCount must be 0 for default cell size
-			"MaxGridCount": 0,
-			// Default cell size, for gridCount > 24
-			"CellSize": {
-				"width": 2,
-				"height": 3
-			}
-		}
-	]
+    "MaxFoldingTime": 5,
+    
+    // Advanced configuration
+    "DebugLogs": false,
+    "Overrides": {
+        // Sample override for santa's backpack
+        "61b9e1aaef9a1b5d6a79899a": {
+            "FoldedSize": {
+                "width": 3,
+                "height": 3
+            },
+            "FoldingTime": 5
+        },
+        // Disable dev backpack. Do NOT remove - will mess with cell sizes if removed.
+        "56e294cdd2720b603a8b4575": {
+            "Foldable": false
+        },
+        // All headphones fold time 1 second
+        "5645bcb74bdc2ded0b8b4578": {
+            "FoldingTime": 1
+        }
+    },
+    "BackpackFoldedCellSizes": [
+        {
+            "MaxGridCount": 15,
+            "CellSize": {
+                "width": 1,
+                "height": 2
+            }
+        },
+        {
+            "MaxGridCount": 24,
+            "CellSize": {
+                "width": 2,
+                "height": 2
+            }
+        },
+        {
+            "MaxGridCount": 34,
+            "CellSize": {
+                "width": 2,
+                "height": 3
+            }
+        },
+        {
+            "MaxGridCount": 42,
+            "CellSize": {
+                "width": 2,
+                "height": 4
+            }
+        },
+        {
+            // MaxGridCount must be 0 for default cell size
+            "MaxGridCount": 0,
+            // Default cell size, for gridCount > 42
+            "CellSize": {
+                "width": 3,
+                "height": 3
+            }
+        }
+    ],
+    "VestFoldedCellSizes": [
+        {
+            "MaxGridCount": 15,
+            "CellSize": {
+                "width": 1,
+                "height": 2
+            }
+        },
+        {
+            "MaxGridCount": 24,
+            "CellSize": {
+                "width": 1,
+                "height": 3
+            }
+        },
+        {
+            // MaxGridCount must be 0 for default cell size
+            "MaxGridCount": 0,
+            // Default cell size, for gridCount > 24
+            "CellSize": {
+                "width": 2,
+                "height": 3
+            }
+        }
+    ],
+    "HeadphonesFoldedCellSizes": [
+        {
+            "MaxGridCount": 2,
+            "CellSize": {
+                "width": 1,
+                "height": 1
+            }
+        },
+        {
+            "MaxGridCount": 0,
+            "CellSize": {
+                "width": 1,
+                "height": 2
+            }
+        }
+    ]
 }

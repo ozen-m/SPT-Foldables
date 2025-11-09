@@ -1,9 +1,11 @@
 {
   // Server locales
   "set-properties": "Set {{name}} ({{id}}) folded size to: {{size}} and folding time to: {{time}}",
+  "set-properties-skip": "Skipping {{name}} ({{id}}), no change in folding size",
   "missing-override-properties": "Missing override properties for id: %s. Is this intended?",
   "added-backpacks": "Added foldable properties to %s backpacks",
   "added-vests": "Added foldable properties to %s vests",
+  "added-headphones": "Added foldable properties to %s headphones",
   "load-success": "loaded successfully!",
 
   // Client locales
