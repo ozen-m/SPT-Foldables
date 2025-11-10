@@ -49,7 +49,9 @@ public static class ItemUiContextExtensions
         this ItemUiContext itemUiContext,
         Item item,
         ItemContextAbstractClass itemContextAbstractClass = null,
-        Callback callback = null)
+        Callback callback = null,
+        bool force = false
+    )
     {
         if (item is not IFoldable foldableItem)
         {
@@ -76,8 +78,7 @@ public static class ItemUiContextExtensions
         {
             inventoryController.StopProcesses();
             StopFolding();
-            _foldingCts = new CancellationTokenSource();
-
+            _foldingCts = force ? null : new CancellationTokenSource();
             playerInventoryController.Player_0.StartCoroutine(
                 FoldingDelay(
                     item,
@@ -85,7 +86,7 @@ public static class ItemUiContextExtensions
                     inventoryController,
                     itemUiContext,
                     itemContextAbstractClass,
-                    _foldingCts.Token,
+                    _foldingCts?.Token,
                     callback
                 ));
         }
@@ -127,19 +128,21 @@ public static class ItemUiContextExtensions
         InventoryController inventoryController,
         ItemUiContext itemUiContext,
         ItemContextAbstractClass itemContextAbstractClass,
-        CancellationToken token,
-        Callback callback = null)
+        CancellationToken? token,
+        Callback callback = null
+    )
     {
         // Use LoadMagazineEvent for our UI
+        var parent = item.Parent.GetRootItem();
         var owner = item.Owner;
-        var startFoldEvent = new GEventArgs7(null, item, 1, seconds, CommandStatus.Begin, owner);
-        var stopFoldEvent = new GEventArgs7(null, item, 1, seconds, CommandStatus.Succeed, owner);
+        var startFoldEvent = new GEventArgs7(parent, item, 1, seconds, CommandStatus.Begin, owner);
+        var stopFoldEvent = new GEventArgs7(parent, item, 1, seconds, CommandStatus.Succeed, owner);
         inventoryController.RaiseLoadMagazineEvent(startFoldEvent);
 
         var timer = Stopwatch.StartNew();
         while (timer.Elapsed.TotalSeconds < seconds)
         {
-            if (token.IsCancellationRequested)
+            if (token is { IsCancellationRequested: true })
             {
                 inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
                 callback?.Fail("Folding was cancelled");

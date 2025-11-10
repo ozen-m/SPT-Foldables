@@ -12,20 +12,17 @@ namespace Foldables.Patches.Sizes;
 /// </summary>
 public class ImageRaycastPatch : ModulePatch
 {
-    private static readonly AccessTools.FieldRef<GridItemView, Image> _mainImageField = AccessTools.FieldRefAccess<GridItemView, Image>("MainImage");
-
     protected override MethodBase GetTargetMethod()
     {
         return typeof(GridItemView).GetMethod(nameof(GridItemView.NewItemView));
     }
 
     [PatchPostfix]
-    protected static void Postfix(GridItemView __instance)
+    protected static void Postfix(GridItemView __instance, Image ___MainImage)
     {
         if (__instance.Item is IFoldable)
         {
-            var mainImage = _mainImageField(__instance);
-            mainImage.raycastTarget = false;
+            ___MainImage.raycastTarget = false;
         }
     }
 }

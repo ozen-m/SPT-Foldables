@@ -56,7 +56,7 @@ public class GetActionsPatch : ModulePatch
                                 // "Take" action missing unless forced to update interactions
                                 owner.InteractionsChangedHandler();
                             });
-                            Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
+                            rootItem.PlayFoldSound();
                         }
                         else
                         {

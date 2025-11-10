@@ -19,8 +19,10 @@ public static class ItemHelper
     public static void FoldItemWithDelay(
         this Item item,
         ItemContextAbstractClass itemContextAbstractClass = null,
-        Callback callback = null)
-        => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback);
+        Callback callback = null,
+        bool force = false
+    )
+        => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback, force);
 
     /// <summary>
     /// Check if item is not empty before folding

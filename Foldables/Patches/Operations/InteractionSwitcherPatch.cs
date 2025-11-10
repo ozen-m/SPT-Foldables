@@ -2,6 +2,7 @@ using System.Reflection;
 using Comfort.Common;
 using EFT.InventoryLogic;
 using Foldables.Models;
+using Foldables.Models.Items;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 
@@ -48,8 +49,10 @@ public class InteractionSwitcherPatch : ModulePatch
                 }
                 return;
             }
-            case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance.Item_0_1.Parent.Container.ParentItem is InventoryEquipment:
+            case EItemInfoButton.Fold when __instance.Item_0_1 is FoldableHeadphonesItemClass { Parent.Container: Slot }:
+            case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance.Item_0_1 is { Parent.Container: Slot }:
             {
+                // Headphones cannot be folded while in a slot
                 // Config does not allow folding while item is equipped
                 __result = _foldItemEquippedFail;
                 return;
