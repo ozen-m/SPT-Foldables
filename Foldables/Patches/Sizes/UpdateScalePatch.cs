@@ -26,7 +26,9 @@ public class UpdateScalePatch : ModulePatch
             float y = sizeDelta.y;
 
             // Calculate scale and multiply to preserve aspect ratio
-            float scale = Mathf.Min(itemViewSizeDelta.x / x, itemViewSizeDelta.y / y);
+            float scale = __instance.ItemRotation == ItemRotation.Horizontal
+                ? Mathf.Min(itemViewSizeDelta.x / x, itemViewSizeDelta.y / y)
+                : Mathf.Min(itemViewSizeDelta.y / x, itemViewSizeDelta.x / y);
             ___MainImage.rectTransform.sizeDelta = new Vector2(x * scale, y * scale);
         }
     }
