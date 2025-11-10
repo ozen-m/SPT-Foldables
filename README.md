@@ -7,7 +7,7 @@ You can now fold backpacks and vests!
 
 ### Features 
 - Every compatible gear now has a folded state: Fold like you would a gun by using <kbd>middle mouse click</kbd> or by using the context menu
-- Compatible gear includes: Backpacks, Unarmored Vests
+- Compatible gear includes: Backpacks, Unarmored Vests, Headphones
 - Realism and balancing: Folded gear cannot be opened and cannot contain any items. Folding in-raid takes time, scaled based on the size of the gear
 - Seamless experience: Unfold gear on equip. Unfold gear when trying to open it. Ask to spill the contents when folding a container that is not empty. Ability to fold/unfold items on the ground in-raid, by holding the interaction button (<kbd>F</kbd>)
 - Configurable: Configuration is available server side and client side
@@ -29,7 +29,7 @@ In the `config.json` file:
 
 For a more tailored experience:
 - `Overrides` - Override foldable properties for certain gear. See `config.json` for an example
-- `BackpackFoldedCellSizes` and `VestFoldedCellSizes` - Folded sizes are calculated based on this, for example (using default values) all backpacks with a grid count of <= `15` will have a folded size of `1x2`
+- `BackpackFoldedCellSizes`, `VestFoldedCellSizes`, `HeadphoneFoldedCellSizes` - Folded sizes are calculated based on this, for example (using default values) all backpacks with a grid count of <= `15` will have a folded size of `1x2`
 
 #### Client Side
 In the BepInEx configuration manager (<kbd>F12</kbd>)

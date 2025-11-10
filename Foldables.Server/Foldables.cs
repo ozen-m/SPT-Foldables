@@ -55,7 +55,6 @@ public class Foldables(
             .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id));
         AddFoldableProperties(headphonesItemTemplates, BaseClasses.HEADPHONES);
 
-
         CommonUtils.LogSuccess("load-success".Localized());
         return Task.CompletedTask;
     }
@@ -128,6 +127,7 @@ public class Foldables(
         // Folded cell sizes
         ModConfig.BackpackFoldedCellSizes = [.. ModConfig.BackpackFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
         ModConfig.VestFoldedCellSizes = [.. ModConfig.VestFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        ModConfig.HeadphonesFoldedCellSizes = [.. ModConfig.HeadphonesFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
         // ReSharper disable once SimplifyLinqExpressionUseAll
         if (!ModConfig.BackpackFoldedCellSizes.Any(s => s.MaxGridCount == 0))
         {
@@ -184,10 +184,17 @@ public class Foldables(
         var (minSlotCount, maxSlotCount) = GetMinMaxSlotCount(itemTemplates.Select(i => i.Properties));
 
         var lessCounter = 0;
+#if RELEASE
         itemTemplates
             .AsParallel()
             .ForAll(itemTemplate => ProcessTemplate(itemTemplate, baseClass, minSlotCount, maxSlotCount, ref lessCounter));
-
+#endif
+#if DEBUG // Can't break on the parallel
+        foreach (var templateItem in itemTemplates)
+        {
+            ProcessTemplate(templateItem, baseClass, minSlotCount, maxSlotCount, ref lessCounter);
+        }
+#endif
         var updatedCount = itemTemplates.Length - lessCounter;
         if (baseClass == BaseClasses.BACKPACK)
             CommonUtils.LogInfo("added-backpacks".Localized(updatedCount));
