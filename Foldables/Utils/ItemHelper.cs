@@ -103,6 +103,21 @@ public static class ItemHelper
         return true;
     }
 
+    public static void PlayFoldSound(this Item item)
+    {
+        if (item is IFoldable)
+        {
+            if (item is HeadphonesItemClass)
+            {
+                Singleton<GUISounds>.Instance.PlayItemSound(item.ItemSound, EInventorySoundType.use);
+                return;
+            }
+            Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.TacticalClothingApply);
+            return;
+        }
+        Singleton<GUISounds>.Instance.PlayUISound(EUISoundType.MenuStock);
+    }
+
     private static bool ProcessContainerItems(
         Item rootItem,
         StashGridClass[] containers,

@@ -23,19 +23,20 @@ public static class ItemUiContextExtensions
     public static bool IsFolding => _foldingCts != null;
 
     /// <summary>
-    /// <seealso cref="ItemUiContext.FoldItem"/> with callback
+    /// <see cref="ItemUiContext.FoldItem"/> with callback
     /// </summary>
     public static void FoldItem(
         this ItemUiContext itemUiContext,
         Item item,
         Callback callback,
-        InventoryController inventoryController = null /*Is this really necessary*/)
+        InventoryController inventoryController = null /*Is this really necessary*/
+    )
     {
         if (!InteractionsHandlerClass.CanFold(item, out var foldableComponent))
         {
             return;
         }
-        Singleton<GUISounds>.Instance.PlayUISound(item is IFoldable ? EUISoundType.TacticalClothingApply : EUISoundType.MenuStock);
+        item.PlayFoldSound();
         var foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
         inventoryController ??= _inventoryControllerField(itemUiContext);
         _ = inventoryController.TryRunNetworkTransaction(foldEvent, callback);
