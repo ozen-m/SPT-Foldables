@@ -217,7 +217,7 @@ public class Foldables(
         if (reduceCellSize is null)
         {
             // Current size and folded size is the same, skip
-            lessCounter++;
+            Interlocked.Increment(ref lessCounter);
             CommonUtils.LogDebug("set-properties-skip".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id }));
             return;
         }
