@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Foldables.Server/Foldables.Server.csproj" />
+  <Project Path="Foldables/Foldables.csproj" />
+</Solution>
