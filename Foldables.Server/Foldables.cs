@@ -138,6 +138,11 @@ public class Foldables(
         {
             throw new InvalidDataException($"Default CellSize not found for `VestFoldedCellSizes`");
         }
+        // ReSharper disable once SimplifyLinqExpressionUseAll
+        if (!ModConfig.HeadphonesFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        {
+            throw new InvalidDataException($"Default CellSize not found for `HeadphonesFoldedCellSizes`");
+        }
 
         // Unknown/missing properties
         var sb = new StringBuilder();
