@@ -1,8 +1,6 @@
 using System.Reflection;
-using Comfort.Common;
 using EFT;
 using EFT.InventoryLogic;
-using EFT.UI;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;

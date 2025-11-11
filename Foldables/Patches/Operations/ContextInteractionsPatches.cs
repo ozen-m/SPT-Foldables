@@ -2,7 +2,6 @@ using System.Reflection;
 using EFT.InventoryLogic;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
-using UnityEngine;
 
 namespace Foldables.Patches.Operations;
 
@@ -30,11 +29,9 @@ public class UnfoldOnOpenInteractionPatch : ModulePatch
             if (__instance.Item_0 is CompoundItem item)
             {
                 __instance.ItemUiContext_1.OpenItem(item, __instance.ItemContextAbstractClass);
+                // return;
             }
-            else
-            {
-                Debug.LogError("Trying to open an item which is not a CompoundItem!");
-            }
+            // UnityEngine.Debug.LogError("Trying to open an item which is not a CompoundItem!");
         });
         return false;
     }

@@ -3,7 +3,6 @@ using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
 using Foldables.Utils;
-using HarmonyLib;
 using SPT.Reflection.Patching;
 
 namespace Foldables.Patches.Operations;
