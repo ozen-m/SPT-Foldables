@@ -153,10 +153,6 @@ public static class ItemUiContextExtensions
         inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
 
         // Close the "open" grid window when item is folded
-        if (itemContextAbstractClass == null)
-        {
-            Foldables.LogSource.LogWarning("ItemUiContextExtensions::FoldingAction Cannot close dependent windows, itemContextAbstractClass is null");
-        }
         itemContextAbstractClass?.CloseDependentWindows();
 
         // If to fold but not empty, ask if player wants to spill container contents
