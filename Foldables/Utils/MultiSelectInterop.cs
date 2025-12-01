@@ -9,7 +9,7 @@ namespace Foldables.Utils;
 
 public static class MultiSelectInterop
 {
-    private static readonly Version _requiredVersion = new(5, 0);
+    private static readonly Version _requiredVersion = new(5, 0, 0);
 
     private static bool? _uiFixesLoaded;
     private static Func<int> _getCountMethod;
@@ -38,23 +38,33 @@ public static class MultiSelectInterop
     {
         if (_uiFixesLoaded.HasValue) return _uiFixesLoaded.Value;
 
-        bool present = Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out var pluginInfo);
-        _uiFixesLoaded = present && pluginInfo.Metadata.Version >= _requiredVersion;
+        bool present = Chainloader.PluginInfos.TryGetValue("com.tyfon.uifixes", out var pluginInfo) ||
+                       Chainloader.PluginInfos.TryGetValue("Tyfon.UIFixes", out pluginInfo); // TODO: Remove in 4.1.x
+        bool correctVersion = present && pluginInfo.Metadata.Version >= _requiredVersion;
+        _uiFixesLoaded = present && correctVersion;
 
         if (_uiFixesLoaded.Value)
         {
-            var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
-            if (multiSelectControllerType != null)
-            {
-                var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
-                _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
-            }
             var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
-            if (multiSelectType != null)
+            var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
+            if (multiSelectType is not null && multiSelectControllerType is not null)
             {
                 var applyAllMethodInfo = AccessTools.Method(multiSelectType, "ApplyAll");
                 _applyAllMethod = AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContextAbstractClass, Task>, bool>>(applyAllMethodInfo);
+                var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
+                _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
+                Foldables.LogSource.LogInfo("UI Fixes interop loaded successfully");
             }
+            else
+            {
+                Foldables.LogSource.LogError($"UI Fixes {pluginInfo!.Metadata.Version} is present but something went wrong");
+                _uiFixesLoaded = false;
+            }
+        }
+
+        if (present && !correctVersion)
+        {
+            Foldables.LogSource.LogWarning($"UI Fixes {pluginInfo.Metadata.Version} is present but {_requiredVersion} is required, interop will not work");
         }
 
         return _uiFixesLoaded.Value;

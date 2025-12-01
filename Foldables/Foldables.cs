@@ -12,8 +12,10 @@ using UnityEngine;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.1")]
-[BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.2")]
+[BepInDependency("com.tyfon.uifixes", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)] // TODO: Remove in 4.1.x
+[BepInDependency("com.ozen.continuousloadammo", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
     private const string BackpackId = "5448e53e4bdc2d60728b4567";

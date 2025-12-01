@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Foldables</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <LangVersion>latest</LangVersion>
     <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
     <Authors>ozen</Authors>
@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ConfigurationManager">
-      <HintPath>$(SPTPath)BepInEx\plugins\spt\ConfigurationManager\ConfigurationManager.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="0Harmony">
       <HintPath>$(SPTPath)BepInEx\core\0Harmony.dll</HintPath>
       <Private>false</Private>
@@ -52,11 +48,6 @@
       <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Comfort.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Newtonsoft.Json.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
@@ -73,13 +64,8 @@
       <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="UnityEngine.UI">
       <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>$(SPTPath)EscapeFromTarkov_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
