@@ -17,5 +17,5 @@
   "Cannot fold the container with unsearched items inside": "Нельзя сложить контейнер с необысканными предметами",
   "Cannot fold while the item is equipped": "Нельзя сложить экипированный предмет",
   "Do you want to spill the contents of {0} and fold?": "Вы хотите извлечь содержимое {0} и сложить его?",
-  " (Folded)": " (Сложеный)"
+  " (Folded)": " (Сложено)"
 }
