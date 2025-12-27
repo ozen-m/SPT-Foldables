@@ -10,7 +10,7 @@ public record ModMetadata : AbstractModMetadata
     public override string Name { get; init; } = "Foldables";
     public override string Author { get; init; } = "ozen";
     public override List<string> Contributors { get; init; } = [];
-    public override Version Version { get; init; } = new("1.0.2");
+    public override Version Version { get; init; } = new("1.0.3");
     public override Range SptVersion { get; init; } = new("~4.0.4");
     public override List<string> Incompatibilities { get; init; } = [];
     public override Dictionary<string, Range> ModDependencies { get; init; }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Foldables.Models;
+using Foldables.Patches;
 using Foldables.Utils;
 using JetBrains.Annotations;
 using SPTarkov.DI.Annotations;
@@ -54,6 +55,8 @@ public class Foldables(
             .Values
             .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id));
         AddFoldableProperties(headphonesItemTemplates, BaseClasses.HEADPHONES);
+
+        new GetSizePatch().Enable();
 
         CommonUtils.LogSuccess("load-success".Localized());
         return Task.CompletedTask;
@@ -204,8 +207,8 @@ public class Foldables(
         itemTemplates
             .AsParallel()
             .ForAll(itemTemplate => ProcessTemplate(itemTemplate, baseClass, minSlotCount, maxSlotCount, ref lessCounter));
-#endif
-#if DEBUG // Can't break on the parallel
+#else
+        // Can't break on the parallel
         foreach (var templateItem in itemTemplates)
         {
             ProcessTemplate(templateItem, baseClass, minSlotCount, maxSlotCount, ref lessCounter);

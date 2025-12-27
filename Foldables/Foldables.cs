@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.2")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.3")]
 [BepInDependency("com.tyfon.uifixes", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)] // TODO: Remove in 4.1.x
 [BepInDependency("com.ozen.continuousloadammo", BepInDependency.DependencyFlags.SoftDependency)]
