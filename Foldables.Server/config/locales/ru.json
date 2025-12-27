@@ -1,0 +1,21 @@
+{
+  // Server locales
+  "set-properties": "Для {{name}} ({{id}}) установлен размер в свёрнутом виде: {{size}} и время свёртывания: {{time}}",
+  "set-properties-skip": "Объект {{name}} ({{id}}) пропущен, так как размер свёртывания остался прежним.",
+  "missing-override-properties": "Для идентификатора %s не найдены override свойства. Это ожидаемо?",
+  "added-backpacks": "Рюкзакам %s добавлена возможность складывания",
+  "added-vests": "Жилетам %s добавлена возможность складывания",
+  "added-headphones": "Наушникам %s добавлена возможность складывания",
+  "load-success": "успешно загружен!",
+
+  // Client locales
+  "Container is folded": "Контейнер сложен",
+  "Item is folded and can't unfold in place": "Предмет сложен и не раскладывается на месте",
+  "Cannot fold the item now": "Сейчас нельзя сложить этот предмет",
+  "Cannot fold the item while moving": "Невозможно сложить предмет во время его перемещения",
+  "Cannot fold the container with items inside": "Контейнер с содержимым внутри нельзя сложить",
+  "Cannot fold the container with unsearched items inside": "Нельзя сложить контейнер с необысканными предметами",
+  "Cannot fold while the item is equipped": "Нельзя сложить экипированный предмет",
+  "Do you want to spill the contents of {0} and fold?": "Вы хотите извлечь содержимое {0} и сложить его?",
+  " (Folded)": " (Сложено)"
+}
