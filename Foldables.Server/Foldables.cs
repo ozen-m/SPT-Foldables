@@ -98,22 +98,33 @@ public class Foldables(
             CommonUtils.LogError($"No locale files found under: {localesPath}");
             return;
         }
-        foreach (var (lang, locale) in locales)
+        
+        foreach (var (lang, lazyLoadLocale) in databaseService.GetLocales().Global)
         {
-            if (databaseService.GetLocales().Global.TryGetValue(lang, out var lazyloadedValue))
+            if (locales.TryGetValue(lang, out Dictionary<string, string> locale))
             {
-                lazyloadedValue.AddTransformer((lazyloadedLocaleData) =>
+                lazyLoadLocale.AddTransformer((localeData) =>
                 {
                     foreach (var (key, value) in locale)
                     {
-                        lazyloadedLocaleData.TryAdd(key, value);
+                        localeData.TryAdd(key, value);
                     }
-                    return lazyloadedLocaleData;
+
+                    return localeData;
                 });
             }
             else
             {
-                CommonUtils.LogWarning($"Failed to add locale for language: {lang}, language not found in the SPT Database");
+                // We don't have a locale file for the current language, use english
+                lazyLoadLocale.AddTransformer((localeData) =>
+                {
+                    foreach (var (key, value) in locales["en"])
+                    {
+                        localeData.TryAdd(key, value);
+                    }
+
+                    return localeData;
+                });
             }
         }
     }
