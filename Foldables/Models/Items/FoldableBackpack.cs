@@ -1,21 +1,23 @@
+﻿using Diz.LanguageExtensions;
+using EFT;
 using EFT.InventoryLogic;
 using Foldables.Models.Templates;
 using JetBrains.Annotations;
 
 namespace Foldables.Models.Items;
 
-public class FoldableVestItemClass : VestItemClass, IFoldable
+public class FoldableBackpack : Backpack, IFoldable
 {
-    [GAttribute26]
+    [Component]
     [UsedImplicitly]
     public readonly FoldableComponent Foldable;
 
-    private readonly FoldableVestTemplateClass _foldableVestTemplateClass;
+    private readonly FoldableBackpackTemplate _foldableBackpackTemplate;
 
-    public FoldableVestItemClass(string id, FoldableVestTemplateClass template)
+    public FoldableBackpack(string id, FoldableBackpackTemplate template)
         : base(id, template)
     {
-        _foldableVestTemplateClass = template;
+        _foldableBackpackTemplate = template;
         if (template.Foldable)
         {
             Foldable = new FoldableComponent(this, template);
@@ -23,7 +25,7 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
         }
     }
 
-    public override GStruct153 Apply(TraderControllerClass itemController, Item item, int count, bool simulate)
+    public override OperationResult Apply(ItemController itemController, Item item, int count, bool simulate)
     {
         if (Folded)
         {
@@ -36,15 +38,15 @@ public class FoldableVestItemClass : VestItemClass, IFoldable
 
     public int SizeReduceRight => Foldable.SizeReduceRight;
 
-    public int SizeReduceDown => _foldableVestTemplateClass.SizeReduceDown;
+    public int SizeReduceDown => _foldableBackpackTemplate.SizeReduceDown;
 
-    public float FoldingTime => _foldableVestTemplateClass.FoldingTime;
+    public float FoldingTime => _foldableBackpackTemplate.FoldingTime;
 
-    public string FoldedSlot => _foldableVestTemplateClass.FoldedSlot;
+    public string FoldedSlot => _foldableBackpackTemplate.FoldedSlot;
 
     public override int GetHashSum()
     {
-        int hashSum = base.GetHashSum();
+        var hashSum = base.GetHashSum();
         if (Foldable != null)
         {
             hashSum = hashSum * 27 + Foldable.Folded.GetHashCode();

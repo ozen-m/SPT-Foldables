@@ -4,7 +4,7 @@ using SPTarkov.Server.Core.Models.Common;
 
 namespace Foldables.Models;
 
-public record ModConfig
+public record FoldablesConfig
 {
     [JsonPropertyName("MinFoldingTime")]
     public double MinFoldingTime { get; set; } = 1;

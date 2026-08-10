@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Comfort.Common;
 using EFT;
+using EFT.Communications;
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
@@ -16,7 +17,7 @@ namespace Foldables.Utils;
 public static class ItemUiContextExtensions
 {
     private static readonly AccessTools.FieldRef<ItemUiContext, InventoryController> _inventoryControllerField =
-        AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("inventoryController_0");
+        AccessTools.FieldRefAccess<ItemUiContext, InventoryController>("_inventoryController");
 
     private static CancellationTokenSource _foldingCts;
 
@@ -32,12 +33,12 @@ public static class ItemUiContextExtensions
         InventoryController inventoryController = null /*Is this really necessary*/
     )
     {
-        if (!InteractionsHandlerClass.CanFold(item, out var foldableComponent))
+        if (!ItemManipulator.CanFold(item, out var foldableComponent))
         {
             return;
         }
         item.PlayFoldSound();
-        var foldEvent = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, true);
+        var foldEvent = ItemManipulator.Fold(foldableComponent, !foldableComponent.Folded, true);
         inventoryController ??= _inventoryControllerField(itemUiContext);
         _ = inventoryController.TryRunNetworkTransaction(foldEvent, callback);
     }
@@ -48,7 +49,7 @@ public static class ItemUiContextExtensions
     public static void FoldItemWithDelay(
         this ItemUiContext itemUiContext,
         Item item,
-        ItemContextAbstractClass itemContextAbstractClass = null,
+        ItemContext itemContextAbstractClass = null,
         Callback callback = null,
         bool force = false
     )
@@ -59,7 +60,7 @@ public static class ItemUiContextExtensions
             return;
         }
 
-        if (!GClass2340.InRaid || foldableItem.FoldingTime <= 0f)
+        if (!InGameStatus.InRaid || foldableItem.FoldingTime <= 0f)
         {
             // Close the "open" grid window when item is folded
             itemContextAbstractClass?.CloseDependentWindows();
@@ -79,7 +80,7 @@ public static class ItemUiContextExtensions
             inventoryController.StopProcesses();
             StopFolding();
             _foldingCts = force ? null : new CancellationTokenSource();
-            playerInventoryController.Player_0.StartCoroutine(
+            playerInventoryController.Player.StartCoroutine(
                 FoldingDelay(
                     item,
                     foldableItem.FoldingTime,
@@ -108,7 +109,7 @@ public static class ItemUiContextExtensions
         }
         else
         {
-            NotificationManagerClass.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
+            NotificationManager.DisplayWarningNotification("Cannot fold the container with items inside".Localized());
             callback?.Fail("Cannot fold the container with items inside");
         }
     }
@@ -127,7 +128,7 @@ public static class ItemUiContextExtensions
         float seconds,
         InventoryController inventoryController,
         ItemUiContext itemUiContext,
-        ItemContextAbstractClass itemContextAbstractClass,
+        ItemContext itemContext,
         CancellationToken? token,
         Callback callback = null
     )
@@ -135,8 +136,8 @@ public static class ItemUiContextExtensions
         // Use LoadMagazineEvent for our UI
         var parent = item.Parent.GetRootItem();
         var owner = item.Owner;
-        var startFoldEvent = new GEventArgs7(parent, item, 1, seconds, CommandStatus.Begin, owner);
-        var stopFoldEvent = new GEventArgs7(parent, item, 1, seconds, CommandStatus.Succeed, owner);
+        var startFoldEvent = new LoadMagazineEventArgs(parent, item, 1, seconds, CommandStatus.Begin, owner);
+        var stopFoldEvent = new LoadMagazineEventArgs(parent, item, 1, seconds, CommandStatus.Succeed, owner);
         inventoryController.RaiseLoadMagazineEvent(startFoldEvent);
 
         var timer = Stopwatch.StartNew();
@@ -153,7 +154,7 @@ public static class ItemUiContextExtensions
         inventoryController.RaiseLoadMagazineEvent(stopFoldEvent);
 
         // Close the "open" grid window when item is folded
-        itemContextAbstractClass?.CloseDependentWindows();
+        itemContext?.CloseDependentWindows();
 
         // If to fold but not empty, ask if player wants to spill container contents
         if (item.RequiresEmptyingBeforeFold())

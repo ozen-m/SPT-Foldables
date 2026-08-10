@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Comfort.Common;
+using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
 using Foldables.Models;
@@ -8,21 +9,28 @@ namespace Foldables.Utils;
 
 public static class ItemHelper
 {
-    public static bool IsFoldableFolded(this Item item) => item is IFoldable { Folded: true };
+    public static bool IsFoldableFolded(this Item item)
+    {
+        return item is IFoldable { Folded: true };
+    }
 
     public static void FoldItem(this Item item, Callback callback = null)
-        => ItemUiContext.Instance.FoldItem(item, callback);
+    {
+        ItemUiContext.Instance.FoldItem(item, callback);
+    }
 
     /// <summary>
     /// Fold item with delay. Delays only in raid
     /// </summary>
     public static void FoldItemWithDelay(
         this Item item,
-        ItemContextAbstractClass itemContextAbstractClass = null,
+        ItemContext itemContext = null,
         Callback callback = null,
         bool force = false
     )
-        => ItemUiContext.Instance.FoldItemWithDelay(item, itemContextAbstractClass, callback, force);
+    {
+        ItemUiContext.Instance.FoldItemWithDelay(item, itemContext, callback, force);
+    }
 
     /// <summary>
     /// Check if item is not empty before folding
@@ -30,7 +38,9 @@ public static class ItemHelper
     /// <param name="item"></param>
     /// <returns></returns>
     public static bool RequiresEmptyingBeforeFold(this Item item)
-        => item is IFoldable { Folded: false } && !item.IsEmptyNonLinq();
+    {
+        return item is IFoldable { Folded: false } && !item.IsEmptyNonLinq();
+    }
 
     /// <summary>
     /// Move contained items to item's parent
@@ -47,7 +57,7 @@ public static class ItemHelper
             // Do not move contents if item is equipped
             return false;
         }
-        Stack<GStruct153> operations = new();
+        Stack<OperationResult> operations = new();
 
         /*Fold IFoldable item when simulating
         When not simulating, it is assumed item is already folded
@@ -57,7 +67,7 @@ public static class ItemHelper
             var foldableComponent = rootItem.GetItemComponent<FoldableComponent>();
             if (foldableComponent != null)
             {
-                var foldOp = InteractionsHandlerClass.Fold(
+                var foldOp = ItemManipulator.Fold(
                     foldableComponent,
                     !foldableComponent.Folded,
                     false
@@ -70,7 +80,7 @@ public static class ItemHelper
             }
         }
 
-        bool succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
+        var succeeded = ProcessContainerItems(rootItem, compoundItem.Grids, operations, inventoryController);
         if (!simulate && succeeded)
         {
             while (operations.TryPop(out var moveOp))
@@ -93,7 +103,10 @@ public static class ItemHelper
 
     public static bool IsEmptyNonLinq(this Item item)
     {
-        if (item is not CompoundItem compoundItem) return true;
+        if (item is not CompoundItem compoundItem)
+        {
+            return true;
+        }
 
         foreach (var grid in compoundItem.Grids)
         {
@@ -109,7 +122,7 @@ public static class ItemHelper
     {
         if (item is IFoldable)
         {
-            if (item is HeadphonesItemClass)
+            if (item is Headphones)
             {
                 Singleton<GUISounds>.Instance.PlayItemSound(item.ItemSound, EInventorySoundType.use);
                 return;
@@ -122,8 +135,8 @@ public static class ItemHelper
 
     private static bool ProcessContainerItems(
         Item rootItem,
-        StashGridClass[] containers,
-        Stack<GStruct153> operations,
+        Grid[] containers,
+        Stack<OperationResult> operations,
         InventoryController inventoryController)
     {
         Stack<Item> containedItems = new();
@@ -138,11 +151,11 @@ public static class ItemHelper
                 }
                 while (containedItems.TryPop(out var containedItem))
                 {
-                    var moveResult = InteractionsHandlerClass.QuickFindAppropriatePlace(
+                    var moveResult = ItemManipulator.QuickFindAppropriatePlace(
                         containedItem,
                         inventoryController,
                         [rootItem.Parent.Container.ParentItem as CompoundItem],
-                        InteractionsHandlerClass.EMoveItemOrder.MoveToAnotherSide,
+                        ItemManipulator.EMoveItemOrder.MoveToAnotherSide,
                         false // Do not simulate since the next result depends on the last
                     );
                     if (moveResult.Succeeded)

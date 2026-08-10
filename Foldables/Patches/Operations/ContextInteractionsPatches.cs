@@ -1,5 +1,6 @@
 using System.Reflection;
 using EFT.InventoryLogic;
+using EFT.UI;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 
@@ -12,23 +13,29 @@ public class UnfoldOnOpenInteractionPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(ContextInteractionsAbstractClass).GetMethod(nameof(ContextInteractionsAbstractClass.method_17));
+        return typeof(BaseItemContextInteractions).GetMethod(nameof(BaseItemContextInteractions.method_17));
     }
 
     // Must happen before
     [PatchPrefix]
-    protected static bool Prefix(ContextInteractionsAbstractClass __instance)
+    protected static bool Prefix(BaseItemContextInteractions __instance)
     {
-        if (!__instance.Item_0.IsFoldableFolded()) return true;
-
-        __instance.ItemUiContext_1.FoldItemWithDelay(__instance.Item_0, __instance.ItemContextAbstractClass, (result) =>
+        if (!__instance.Item.IsFoldableFolded())
         {
-            if (result.Failed) return;
+            return true;
+        }
 
-            __instance.Action_6();
-            if (__instance.Item_0 is CompoundItem item)
+        __instance.ItemUiContext.FoldItemWithDelay(__instance.Item, __instance.ItemContext, (result) =>
+        {
+            if (result.Failed)
             {
-                __instance.ItemUiContext_1.OpenItem(item, __instance.ItemContextAbstractClass);
+                return;
+            }
+
+            __instance._onCloseAction();
+            if (__instance.Item is CompoundItem item)
+            {
+                __instance.ItemUiContext.OpenItem(item, __instance.ItemContext);
                 // return;
             }
             // UnityEngine.Debug.LogError("Trying to open an item which is not a CompoundItem!");

@@ -1,21 +1,27 @@
 ﻿using System.Reflection;
 using HarmonyLib;
+using SPTarkov.DI.Annotations;
 using SPTarkov.Reflection.Patching;
-using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
+using SPTarkov.Server.Core.Helpers.Profile;
 using SPTarkov.Server.Core.Models.Common;
+using SPTarkov.Server.Core.Models.Enums;
 
 namespace Foldables.Patches;
 
+[Injectable]
 public class GetSizePatch : AbstractPatch
 {
     private static readonly MongoId[] _foldableItems = [BaseClasses.BACKPACK, BaseClasses.VEST, BaseClasses.HEADPHONES];
     private static ItemHelper _itemHelper;
 
+    public GetSizePatch(ItemHelper itemHelper)
+    {
+        _itemHelper = itemHelper;
+    }
+
     protected override MethodBase GetTargetMethod()
     {
-        _itemHelper = ServiceLocator.ServiceProvider.GetRequiredService<ItemHelper>();
-
         return AccessTools.Method(typeof(InventoryHelper), "GetSizeByInventoryItemHash");
     }
 

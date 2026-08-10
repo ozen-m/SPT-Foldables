@@ -18,7 +18,10 @@ public class CalculateExtraSizePatch : ModulePatch
     [PatchPostfix]
     protected static void Postfix(CompoundItem __instance, FoldableComponent overrideFoldable, bool overrideValue, Slot overrideSlot, Item overrideSlotContent, ref ExtraSize __result)
     {
-        if (__instance is not IFoldable foldableItem) return;
+        if (__instance is not IFoldable foldableItem)
+        {
+            return;
+        }
 
         ExtraSize newSize = default;
 

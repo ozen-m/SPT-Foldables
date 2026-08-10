@@ -1,45 +1,40 @@
-using System.Reflection;
 using System.Text;
 using Foldables.Models;
-using Foldables.Patches;
 using Foldables.Utils;
 using JetBrains.Annotations;
 using SPTarkov.DI.Annotations;
+using SPTarkov.Reflection.Patching;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Items;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+using SPTarkov.Server.Core.Models.Enums;
 using SPTarkov.Server.Core.Models.Spt.Inventory;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Services;
-using Path = System.IO.Path;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Locales;
 
 namespace Foldables;
 
-[Injectable(TypePriority = OnLoadOrder.PostSptModLoader)] // Process vanilla and mod items
+[Injectable(TypePriority = OnLoadOrder.PostLoad + 100000)] // Process vanilla and mod items
 public class Foldables(
-    ISptLogger<Foldables> logger,
-    ModHelper modHelper,
-    CustomJsonUtil customJsonUtil,
+    FoldablesLogger L,
+    FoldablesConfig config,
+    FoldablesLocales locales,
     ItemHelper itemHelper,
-    DatabaseService databaseService,
-    ServerLocalisationService serverLocalisationService
+    TemplateTable templateTable,
+    LocaleTable localeTable,
+    ServerLocalisationService serverLocalisationService,
+    IEnumerable<IRuntimePatch> patches
 ) : IOnLoad
 {
-    public static ModConfig ModConfig { get; private set; } = new();
-
-    public Task OnLoad()
+    public Task OnLoadAsync(CancellationToken token)
     {
-        CommonUtils.Logger = logger;
-        CommonUtils.ServerLocalisationService = serverLocalisationService;
+        CommonExtensions.SetServerLocalisationService(serverLocalisationService);
 
-        string modPath = modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly());
-        string configPath = Path.Combine(modPath, "config");
-        LoadConfig(Path.Combine(configPath, "config.json"));
-        LoadLocales(Path.Combine(configPath, "locales"));
+        ProcessLocales();
         ValidateConfig();
 
-        Dictionary<MongoId, TemplateItem> items = databaseService.GetItems();
+        var items = templateTable.Items;
 
         var backpacksItemTemplates = items
             .Values
@@ -56,55 +51,26 @@ public class Foldables(
             .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id));
         AddFoldableProperties(headphonesItemTemplates, BaseClasses.HEADPHONES);
 
-        new GetSizePatch().Enable();
+        foreach (var patch in patches)
+        {
+            patch.Enable();
+        }
 
-        CommonUtils.LogSuccess("load-success".Localized());
+        L.Success("load-success".Localized());
         return Task.CompletedTask;
     }
 
-    private void LoadConfig(string configFilePath)
+    private void ProcessLocales()
     {
-        try
-        {
-            ModConfig = customJsonUtil.DeserializeFromFile<ModConfig>(configFilePath, true);
-        }
-        catch (Exception ex)
-        {
-            CommonUtils.LogError(ex.ToString());
-            CommonUtils.LogError("Exception while trying to load configuration file, using default values. Misconfigured config.json?");
-        }
-    }
-
-    private void LoadLocales(string localesPath)
-    {
-        Dictionary<string, Dictionary<string, string>> locales = [];
-        if (!Directory.Exists(localesPath))
-        {
-            throw new FileNotFoundException($"Missing locales directory: {localesPath}");
-        }
-        try
-        {
-            string[] localeFiles = Directory.GetFiles(localesPath, "*.json");
-            foreach (var localeFile in localeFiles)
-            {
-                string language = Path.GetFileNameWithoutExtension(localeFile);
-                locales[language] = customJsonUtil.DeserializeFromFile<Dictionary<string, string>>(localeFile);
-            }
-        }
-        catch (Exception ex)
-        {
-            CommonUtils.LogError(ex.ToString());
-            CommonUtils.LogError("Exception while trying to load locales");
-        }
         if (locales.Count < 1)
         {
-            CommonUtils.LogError($"No locale files found under: {localesPath}");
+            L.Error("No locale files found!");
             return;
         }
-        
-        foreach (var (lang, lazyLoadLocale) in databaseService.GetLocales().Global)
+
+        foreach (var (lang, lazyLoadLocale) in localeTable.Global)
         {
-            if (locales.TryGetValue(lang, out Dictionary<string, string> locale))
+            if (locales.TryGetValue(lang, out var locale))
             {
                 lazyLoadLocale.AddTransformer((localeData) =>
                 {
@@ -132,43 +98,43 @@ public class Foldables(
         }
     }
 
-    private static void ValidateConfig()
+    private void ValidateConfig()
     {
         // Folding times
-        ModConfig.MinFoldingTime = Math.Max(ModConfig.MinFoldingTime, 0d);
-        ModConfig.MaxFoldingTime = Math.Max(ModConfig.MinFoldingTime, ModConfig.MaxFoldingTime);
+        config.MinFoldingTime = Math.Max(config.MinFoldingTime, 0d);
+        config.MaxFoldingTime = Math.Max(config.MinFoldingTime, config.MaxFoldingTime);
 
         // Folded cell sizes
-        ModConfig.BackpackFoldedCellSizes = [.. ModConfig.BackpackFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
-        ModConfig.VestFoldedCellSizes = [.. ModConfig.VestFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
-        ModConfig.HeadphonesFoldedCellSizes = [.. ModConfig.HeadphonesFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        config.BackpackFoldedCellSizes = [.. config.BackpackFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        config.VestFoldedCellSizes = [.. config.VestFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
+        config.HeadphonesFoldedCellSizes = [.. config.HeadphonesFoldedCellSizes.OrderBy(s => s.MaxGridCount)];
         // ReSharper disable once SimplifyLinqExpressionUseAll
-        if (!ModConfig.BackpackFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        if (!config.BackpackFoldedCellSizes.Any(s => s.MaxGridCount == 0))
         {
-            throw new InvalidDataException($"Default CellSize not found for `BackpackFoldedCellSizes`");
+            throw new InvalidDataException($"Default CellSize not found for `{nameof(FoldablesConfig.BackpackFoldedCellSizes)}`");
         }
         // ReSharper disable once SimplifyLinqExpressionUseAll
-        if (!ModConfig.VestFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        if (!config.VestFoldedCellSizes.Any(s => s.MaxGridCount == 0))
         {
-            throw new InvalidDataException($"Default CellSize not found for `VestFoldedCellSizes`");
+            throw new InvalidDataException($"Default CellSize not found for `{nameof(FoldablesConfig.VestFoldedCellSizes)}`");
         }
         // ReSharper disable once SimplifyLinqExpressionUseAll
-        if (!ModConfig.HeadphonesFoldedCellSizes.Any(s => s.MaxGridCount == 0))
+        if (!config.HeadphonesFoldedCellSizes.Any(s => s.MaxGridCount == 0))
         {
-            throw new InvalidDataException($"Default CellSize not found for `HeadphonesFoldedCellSizes`");
+            throw new InvalidDataException($"Default CellSize not found for `{nameof(FoldablesConfig.HeadphonesFoldedCellSizes)}`");
         }
 
         // Unknown/missing properties
         var sb = new StringBuilder();
-        if (ModConfig.ExtensionData.Count > 0)
+        if (config.ExtensionData.Count > 0)
         {
             sb.Append("Found unknown fields under config.json:");
-            foreach (var obj in ModConfig.ExtensionData)
+            foreach (var obj in config.ExtensionData)
             {
                 sb.Append(' ').Append(obj.ToString());
             }
         }
-        foreach (var (key, value) in ModConfig.Overrides)
+        foreach (var (key, value) in config.Overrides)
         {
             if (value.ExtensionData.Count > 0)
             {
@@ -188,61 +154,60 @@ public class Foldables(
             }
             if (value is { Foldable: true, ItemSize: null, FoldingTime: null })
             {
-                CommonUtils.LogWarning("missing-override-properties".Localized(key.ToString()));
+                L.Warning("missing-override-properties".Localized(key.ToString()));
             }
         }
         if (sb.Length > 0)
         {
-            CommonUtils.LogWarning(sb.ToString());
+            L.Warning(sb.ToString());
         }
     }
 
-    private static void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
+    private void AddFoldableProperties(IEnumerable<TemplateItem> templates, MongoId baseClass)
     {
-        TemplateItem[] itemTemplates = templates.ToArray();
+        TemplateItem[] itemTemplates = [.. templates];
         var (minSlotCount, maxSlotCount) = GetMinMaxSlotCount(itemTemplates.Select(i => i.Properties));
 
         var lessCounter = 0;
-#if RELEASE
         itemTemplates
-            .AsParallel()
-            .ForAll(itemTemplate => ProcessTemplate(itemTemplate, baseClass, minSlotCount, maxSlotCount, ref lessCounter));
-#else
-        // Can't break on the parallel
-        foreach (var templateItem in itemTemplates)
-        {
-            ProcessTemplate(templateItem, baseClass, minSlotCount, maxSlotCount, ref lessCounter);
-        }
-#endif
+           .AsParallel()
+           .ForAll(itemTemplate => ProcessTemplate(itemTemplate, baseClass, minSlotCount, maxSlotCount, ref lessCounter));
+
         var updatedCount = itemTemplates.Length - lessCounter;
         if (baseClass == BaseClasses.BACKPACK)
-            CommonUtils.LogInfo("added-backpacks".Localized(updatedCount));
+        {
+            L.Info("added-backpacks".Localized(updatedCount));
+        }
         else if (baseClass == BaseClasses.VEST)
-            CommonUtils.LogInfo("added-vests".Localized(updatedCount));
+        {
+            L.Info("added-vests".Localized(updatedCount));
+        }
         else if (baseClass == BaseClasses.HEADPHONES)
-            CommonUtils.LogInfo("added-headphones".Localized(updatedCount));
+        {
+            L.Info("added-headphones".Localized(updatedCount));
+        }
     }
 
-    private static void ProcessTemplate(TemplateItem itemTemplate, MongoId baseClass, int minSlotCount, int maxSlotCount, ref int lessCounter)
+    private void ProcessTemplate(TemplateItem itemTemplate, MongoId baseClass, int minSlotCount, int maxSlotCount, ref int lessCounter)
     {
         var itemProperties = itemTemplate.Properties ?? new TemplateItemProperties();
-        int slotCount = GetSlotCount(itemProperties);
-        ItemSize reduceCellSize = GetReduceCellSize(itemTemplate.Id, slotCount, itemProperties, baseClass);
+        var slotCount = GetSlotCount(itemProperties);
+        var reduceCellSize = GetReduceCellSize(itemTemplate.Id, slotCount, itemProperties, baseClass);
         if (reduceCellSize is null)
         {
             // Current size and folded size is the same, skip
             Interlocked.Increment(ref lessCounter);
-            CommonUtils.LogDebug("set-properties-skip".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id }));
+            L.Debug("set-properties-skip".Localized(new { name = itemTemplate.Name, id = itemTemplate.Id }));
             return;
         }
-        double foldingTime = GetFoldingTime(itemTemplate.Id, slotCount, minSlotCount, maxSlotCount, baseClass);
+        var foldingTime = GetFoldingTime(itemTemplate.Id, slotCount, minSlotCount, maxSlotCount, baseClass);
 
         itemProperties.Foldable = true;
         itemProperties.SizeReduceRight = reduceCellSize.Width;
         itemProperties.ExtensionData!["SizeReduceDown"] = reduceCellSize.Height;
         itemProperties.ExtensionData!["FoldingTime"] = foldingTime;
 
-        CommonUtils.LogDebug("set-properties".Localized(new
+        L.Debug("set-properties".Localized(new
         {
             name = itemTemplate.Name,
             id = itemTemplate.Id,
@@ -251,28 +216,31 @@ public class Foldables(
         }));
     }
 
-    private static bool GetIsFoldable(MongoId itemId)
+    private bool GetIsFoldable(MongoId itemId)
     {
-        if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties))
-            return overrideProperties.Foldable;
-
-        return true;
+        return !config.Overrides.TryGetValue(itemId, out var overrideProperties) || overrideProperties.Foldable;
     }
 
-    private static double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount, MongoId baseClass)
+    private double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount, MongoId baseClass)
     {
-        if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.FoldingTime.HasValue)
+        if (config.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.FoldingTime.HasValue)
+        {
             return overrideProperties.FoldingTime.Value;
-        if (ModConfig.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties) && baseClassOverrideProperties.FoldingTime.HasValue)
+        }
+        if (config.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties) && baseClassOverrideProperties.FoldingTime.HasValue)
+        {
             return baseClassOverrideProperties.FoldingTime.Value;
+        }
 
-        double minFoldTime = ModConfig.MinFoldingTime;
-        double maxFoldTime = ModConfig.MaxFoldingTime;
+        var minFoldTime = config.MinFoldingTime;
+        var maxFoldTime = config.MaxFoldingTime;
         // ReSharper disable once CompareOfFloatsByEqualityOperator, folding time is "disabled"
         if (minFoldTime == maxFoldTime)
+        {
             return maxFoldTime;
+        }
 
-        double scale = (double)(gridCount - minGridCount) / (maxGridCount - minGridCount);
+        var scale = (double)(gridCount - minGridCount) / (maxGridCount - minGridCount);
         return Math.Round(minFoldTime + (maxFoldTime - minFoldTime) * scale, 2);
     }
 
@@ -282,17 +250,26 @@ public class Foldables(
     /// <param name="slotCount">Can be either the grid count or cell size of the item</param>
     /// <returns>null if slotCount is the same as the resulting folded size</returns>
     [CanBeNull]
-    private static ItemSize GetReduceCellSize(MongoId itemId, int slotCount, TemplateItemProperties properties, MongoId baseClass)
+    private ItemSize GetReduceCellSize(MongoId itemId, int slotCount, TemplateItemProperties properties, MongoId baseClass)
     {
         ItemSize foldedCellSize;
-        if (ModConfig.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.ItemSize != null)
+        if (config.Overrides.TryGetValue(itemId, out var overrideProperties) && overrideProperties.ItemSize != null)
+        {
             foldedCellSize = overrideProperties.ItemSize;
-        else if (ModConfig.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties) && baseClassOverrideProperties.ItemSize != null)
-            foldedCellSize = baseClassOverrideProperties.ItemSize;
+        }
+        else if (config.Overrides.TryGetValue(baseClass, out var baseClassOverride) && baseClassOverride.ItemSize != null)
+        {
+            foldedCellSize = baseClassOverride.ItemSize;
+        }
         else
+        {
             foldedCellSize = GetFoldedCellSize(slotCount, baseClass);
+        }
 
-        if (slotCount == foldedCellSize.GetArea()) return null;
+        if (slotCount == foldedCellSize.GetArea())
+        {
+            return null;
+        }
 
         if (properties.Width > properties.Height)
         {
@@ -301,21 +278,29 @@ public class Foldables(
         return new ItemSize
         {
             Width = properties.Width!.Value - foldedCellSize.Width,
-            Height = properties.Height!.Value - foldedCellSize.Height
+            Height = properties.Height!.Value - foldedCellSize.Height,
         };
     }
 
-    private static ItemSize GetFoldedCellSize(int gridCount, MongoId baseClass)
+    private ItemSize GetFoldedCellSize(int gridCount, MongoId baseClass)
     {
         CellSizeRange[] foldedCellSizes;
         if (baseClass == BaseClasses.BACKPACK)
-            foldedCellSizes = ModConfig.BackpackFoldedCellSizes;
+        {
+            foldedCellSizes = config.BackpackFoldedCellSizes;
+        }
         else if (baseClass == BaseClasses.VEST)
-            foldedCellSizes = ModConfig.VestFoldedCellSizes;
+        {
+            foldedCellSizes = config.VestFoldedCellSizes;
+        }
         else if (baseClass == BaseClasses.HEADPHONES)
-            foldedCellSizes = ModConfig.HeadphonesFoldedCellSizes;
+        {
+            foldedCellSizes = config.HeadphonesFoldedCellSizes;
+        }
         else
+        {
             throw new ArgumentException($"Cannot get folded cell size for unrecognized base class: {baseClass}");
+        }
 
         foreach (var cellSizeRange in foldedCellSizes)
         {
@@ -333,9 +318,15 @@ public class Foldables(
         var max = int.MinValue;
         foreach (var itemProperties in itemsProperties)
         {
-            int slotCount = GetSlotCount(itemProperties);
-            if (slotCount < min) min = slotCount;
-            if (slotCount > max) max = slotCount;
+            var slotCount = GetSlotCount(itemProperties);
+            if (slotCount < min)
+            {
+                min = slotCount;
+            }
+            if (slotCount > max)
+            {
+                max = slotCount;
+            }
         }
 
         return (min, max);
@@ -352,10 +343,12 @@ public class Foldables(
         return properties.Width.GetValueOrDefault() * properties.Height.GetValueOrDefault();
     }
 
-    public static ItemSize GetCellSize(TemplateItemProperties properties) =>
-        new()
+    public static ItemSize GetCellSize(TemplateItemProperties properties)
+    {
+        return new ItemSize
         {
             Width = properties.Width.GetValueOrDefault() - properties.SizeReduceRight.GetValueOrDefault(),
-            Height = properties.Height.GetValueOrDefault() - (int)(properties.ExtensionData!.GetValueOrDefault("SizeReduceDown") ?? 0)
+            Height = properties.Height.GetValueOrDefault() - (int)(properties.ExtensionData!.GetValueOrDefault("SizeReduceDown") ?? 0),
         };
+    }
 }

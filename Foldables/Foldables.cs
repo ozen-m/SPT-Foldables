@@ -2,6 +2,7 @@
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using EFT.InventoryLogic;
 using Foldables.Models.Items;
 using Foldables.Models.Templates;
 using Foldables.Patches.Operations.InRaid;
@@ -12,9 +13,8 @@ using UnityEngine;
 
 namespace Foldables;
 
-[BepInPlugin("com.ozen.foldables", "Foldables", "1.0.3")]
+[BepInPlugin("com.ozen.foldables", "Foldables", "1.1.0")]
 [BepInDependency("com.tyfon.uifixes", BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("Tyfon.UIFixes", BepInDependency.DependencyFlags.SoftDependency)] // TODO: Remove in 4.1.x
 [BepInDependency("com.ozen.continuousloadammo", BepInDependency.DependencyFlags.SoftDependency)]
 public class Foldables : BaseUnityPlugin
 {
@@ -39,26 +39,26 @@ public class Foldables : BaseUnityPlugin
 
         // Mappings
         // Backpacks
-        TemplateIdToObjectMappingsClass.TypeTable[BackpackId] = typeof(FoldableBackpackItemClass);
-        TemplateIdToObjectMappingsClass.TemplateTypeTable[BackpackId] = typeof(FoldableBackpackTemplateClass);
-        TemplateIdToObjectMappingsClass.ItemConstructors[BackpackId] = (id, template) => new FoldableBackpackItemClass(id, (FoldableBackpackTemplateClass)template);
+        JsonTypes.TypeTable[BackpackId] = typeof(FoldableBackpack);
+        JsonTypes.TemplateTypeTable[BackpackId] = typeof(FoldableBackpackTemplate);
+        JsonTypes.ItemConstructors[BackpackId] = (id, template) => new FoldableBackpack(id, (FoldableBackpackTemplate)template);
 
         // Vests
-        TemplateIdToObjectMappingsClass.TypeTable[VestId] = typeof(FoldableVestItemClass);
-        TemplateIdToObjectMappingsClass.TemplateTypeTable[VestId] = typeof(FoldableVestTemplateClass);
-        TemplateIdToObjectMappingsClass.ItemConstructors[VestId] = (id, template) => new FoldableVestItemClass(id, (FoldableVestTemplateClass)template);
+        JsonTypes.TypeTable[VestId] = typeof(FoldableVest);
+        JsonTypes.TemplateTypeTable[VestId] = typeof(FoldableVestTemplate);
+        JsonTypes.ItemConstructors[VestId] = (id, template) => new FoldableVest(id, (FoldableVestTemplate)template);
 
         // Headphones
-        TemplateIdToObjectMappingsClass.TypeTable[HeadphonesId] = typeof(FoldableHeadphonesItemClass);
-        TemplateIdToObjectMappingsClass.TemplateTypeTable[HeadphonesId] = typeof(FoldableHeadphonesTemplateClass);
-        TemplateIdToObjectMappingsClass.ItemConstructors[HeadphonesId] = (id, template) => new FoldableHeadphonesItemClass(id, (FoldableHeadphonesTemplateClass)template);
+        JsonTypes.TypeTable[HeadphonesId] = typeof(FoldableHeadphones);
+        JsonTypes.TemplateTypeTable[HeadphonesId] = typeof(FoldableHeadphonesTemplate);
+        JsonTypes.ItemConstructors[HeadphonesId] = (id, template) => new FoldableHeadphones(id, (FoldableHeadphonesTemplate)template);
 
         /*AddToMappingsClass(BackpackId, typeof(FoldableBackpackItemClass), typeof(FoldableBackpackTemplateClass));
         AddToMappingsClass(VestId, typeof(FoldableVestItemClass), typeof(FoldableVestTemplateClass));
         AddToMappingsClass(VestId, typeof(FoldableHeadphonesItemClass), typeof(FoldableHeadphonesTemplateClass));*/
 
         // Add custom types to sorting
-        AddTypesToSortingClass();
+        AddTypesToItemSorter();
 
         var patchManager = new PatchManager(this, true);
         patchManager.EnablePatches();
@@ -70,24 +70,24 @@ public class Foldables : BaseUnityPlugin
         }
     }
 
-    private static void AddTypesToSortingClass()
+    private static void AddTypesToItemSorter()
     {
         // Insert instead of replace?
-        var backpackIndex = GClass3381.IndexOf(typeof(BackpackItemClass));
-        GClass3381.List_0.Insert(backpackIndex, typeof(FoldableBackpackItemClass));
+        var backpackIndex = ItemSorter.IndexOf(typeof(Backpack));
+        ItemSorter._itemSuccessors.Insert(backpackIndex, typeof(FoldableBackpack));
 
-        var vestIndex = GClass3381.IndexOf(typeof(VestItemClass));
-        GClass3381.List_0.Insert(vestIndex, typeof(FoldableVestItemClass));
+        var vestIndex = ItemSorter.IndexOf(typeof(Vest));
+        ItemSorter._itemSuccessors.Insert(vestIndex, typeof(FoldableVest));
 
-        var headphonesIndex = GClass3381.IndexOf(typeof(HeadphonesItemClass));
-        GClass3381.List_0.Insert(headphonesIndex, typeof(FoldableHeadphonesItemClass));
+        var headphonesIndex = ItemSorter.IndexOf(typeof(Headphones));
+        ItemSorter._itemSuccessors.Insert(headphonesIndex, typeof(FoldableHeadphones));
     }
 
     /*private static void AddToMappingsClass(string itemId, Type itemType, Type itemTemplateType)
     {
-        TemplateIdToObjectMappingsClass.TypeTable[itemId] = itemType;
-        TemplateIdToObjectMappingsClass.TemplateTypeTable[itemId] = itemTemplateType;
-        TemplateIdToObjectMappingsClass.ItemConstructors[itemId] = (id, template) =>
+        JsonTypes.TypeTable[itemId] = itemType;
+        JsonTypes.TemplateTypeTable[itemId] = itemTemplateType;
+        JsonTypes.ItemConstructors[itemId] = (id, template) =>
             (Item)Activator.CreateInstance(itemType, id, template);
     }*/
 }

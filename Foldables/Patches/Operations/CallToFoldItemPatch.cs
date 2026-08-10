@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using System.Threading.Tasks;
 using EFT.InventoryLogic;
+using EFT.NextObservedPlayer.Operations;
+using EFT.UI;
 using Foldables.Models;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
@@ -14,13 +16,16 @@ public class CallToFoldItemPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(ContextInteractionsAbstractClass).GetMethod(nameof(ContextInteractionsAbstractClass.method_32));
+        return typeof(BaseItemContextInteractions).GetMethod(nameof(BaseItemContextInteractions.method_32));
     }
 
     [PatchPrefix]
-    protected static bool Prefix(ContextInteractionsAbstractClass __instance)
+    protected static bool Prefix(BaseItemContextInteractions __instance)
     {
-        if (__instance.Item_0 is not IFoldable foldableItem) return true;
+        if (__instance.Item is not IFoldable foldableItem)
+        {
+            return true;
+        }
 
         if (MultiSelectInterop.Count > 1)
         {
@@ -28,10 +33,13 @@ public class CallToFoldItemPatch : ModulePatch
                 (itemContext) =>
                 {
                     var multiSelectItem = itemContext.Item;
-                    if (multiSelectItem is not IFoldable) return Task.CompletedTask;
+                    if (multiSelectItem is not IFoldable)
+                    {
+                        return Task.CompletedTask;
+                    }
 
-                    var tcs = new TaskCompletionClass();
-                    __instance.ItemUiContext_1.FoldItemWithDelay(
+                    var tcs = new SafeTaskCompleteSource();
+                    __instance.ItemUiContext.FoldItemWithDelay(
                         multiSelectItem,
                         itemContext,
                         (_) => { tcs.Complete(); }
@@ -40,12 +48,12 @@ public class CallToFoldItemPatch : ModulePatch
                 },
                 foldableItem.Folded ? EItemInfoButton.Unfold : EItemInfoButton.Fold,
                 false,
-                __instance.ItemUiContext_1
+                __instance.ItemUiContext
             );
         }
         else
         {
-            __instance.ItemUiContext_1.FoldItemWithDelay(__instance.Item_0, __instance.ItemContextAbstractClass);
+            __instance.ItemUiContext.FoldItemWithDelay(__instance.Item, __instance.ItemContext);
         }
         return false;
     }

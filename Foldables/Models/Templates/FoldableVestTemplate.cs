@@ -1,8 +1,10 @@
 // ReSharper disable UnassignedField.Global
 
+using EFT.InventoryLogic;
+
 namespace Foldables.Models.Templates;
 
-public class FoldableVestTemplateClass : VestTemplateClass, GInterface389
+public class FoldableVestTemplate : VestTemplate, IFoldableComponentTemplate
 {
     public bool Foldable;
     public int SizeReduceRight;
@@ -10,7 +12,7 @@ public class FoldableVestTemplateClass : VestTemplateClass, GInterface389
     public float FoldingTime;
     public string FoldedSlot;
 
-    int GInterface389.SizeReduceRight => SizeReduceRight;
+    int IFoldableComponentTemplate.SizeReduceRight => SizeReduceRight;
 
-    string GInterface389.FoldedSlot => FoldedSlot;
+    string IFoldableComponentTemplate.FoldedSlot => FoldedSlot;
 }

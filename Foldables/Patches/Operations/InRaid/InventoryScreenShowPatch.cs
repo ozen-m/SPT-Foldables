@@ -16,22 +16,33 @@ namespace Foldables.Patches.Operations.InRaid;
 /// </summary>
 public class InventoryScreenShowPatch : ModulePatch
 {
+    private static InventoryController _inventoryController;
+
     protected override MethodBase GetTargetMethod()
     {
         return typeof(ItemsPanel).GetMethod(nameof(ItemsPanel.Show));
     }
 
     [PatchPostfix]
-    protected static async void Postfix(InventoryController inventoryController, ItemsPanel.EItemsTab currentTab, bool inRaid, Task __result)
+    protected static void Postfix(InventoryController inventoryController, ItemsPanel.EItemsTab currentTab, bool inRaid, Task __result)
     {
-        if (!inRaid || currentTab != ItemsPanel.EItemsTab.Gear) return;
+        if (!inRaid || currentTab != ItemsPanel.EItemsTab.Gear)
+        {
+            return;
+        }
 
-        await __result;
+        _inventoryController = inventoryController;
+        _ = __result.ContinueWith(ForceUnfoldHeadphones, TaskScheduler.Current);
+    }
 
-        var headphoneSlot = inventoryController.Inventory.Equipment.GetSlot(EquipmentSlot.Earpiece);
+    private static void ForceUnfoldHeadphones(Task _)
+    {
+        var headphoneSlot = _inventoryController.Inventory.Equipment.GetSlot(EquipmentSlot.Earpiece);
         if (headphoneSlot.ContainedItem.IsFoldableFolded())
         {
             headphoneSlot.ContainedItem.FoldItemWithDelay(force: true);
         }
+
+        _inventoryController = null;
     }
 }

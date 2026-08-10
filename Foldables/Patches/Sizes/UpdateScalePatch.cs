@@ -15,21 +15,23 @@ public class UpdateScalePatch : ModulePatch
     }
 
     [PatchPostfix]
-    protected static void Postfix(GridItemView __instance, RectTransform ___rectTransform_0, Image ___MainImage)
+    protected static void Postfix(GridItemView __instance, Image ___MainImage)
     {
-        if (__instance.Item.IsFoldableFolded() && __instance is not SlotItemView)
+        if (!__instance.Item.IsFoldableFolded() || __instance is SlotItemView)
         {
-            // Thanks Tyfon!
-            Vector2 itemViewSizeDelta = ___rectTransform_0.sizeDelta;
-            Vector2 sizeDelta = ___MainImage.rectTransform.sizeDelta;
-            float x = sizeDelta.x;
-            float y = sizeDelta.y;
-
-            // Calculate scale and multiply to preserve aspect ratio
-            float scale = __instance.ItemRotation == ItemRotation.Horizontal
-                ? Mathf.Min(itemViewSizeDelta.x / x, itemViewSizeDelta.y / y)
-                : Mathf.Min(itemViewSizeDelta.y / x, itemViewSizeDelta.x / y);
-            ___MainImage.rectTransform.sizeDelta = new Vector2(x * scale, y * scale);
+            return;
         }
+
+        // Thanks Tyfon!
+        var itemViewSizeDelta = __instance.RectTransform.sizeDelta;
+        var sizeDelta = ___MainImage.rectTransform.sizeDelta;
+        var x = sizeDelta.x;
+        var y = sizeDelta.y;
+
+        // Calculate scale and multiply to preserve aspect ratio
+        var scale = __instance.ItemRotation == ItemRotation.Horizontal
+            ? Mathf.Min(itemViewSizeDelta.x / x, itemViewSizeDelta.y / y)
+            : Mathf.Min(itemViewSizeDelta.y / x, itemViewSizeDelta.x / y);
+        ___MainImage.rectTransform.sizeDelta = new Vector2(x * scale, y * scale);
     }
 }

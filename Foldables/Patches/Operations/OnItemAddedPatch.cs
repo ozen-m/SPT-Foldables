@@ -23,13 +23,14 @@ public class OnItemAddedPatch : ModulePatch
     }
 
     [PatchPostfix]
-    protected static void Postfix(GridItemView __instance, GEventArgs2 eventArgs, ItemUiContext ___ItemUiContext)
+    protected static void Postfix(GridItemView __instance, AddItemEventArgs eventArgs, ItemUiContext ___ItemUiContext)
     {
-        if (eventArgs.Status != CommandStatus.Succeed ||
-            __instance.Item != eventArgs.To.Container.ParentItem || // Only views the same as target
-            __instance.Item.Template.ParentId != _headwearId || // Only headwear
-            !eventArgs.Item.IsFoldableFolded() // Only folded
-           ) return;
+        if (eventArgs.Status != CommandStatus.Succeed
+            || __instance.Item != eventArgs.To.Container.ParentItem // Only views the same as target
+            || __instance.Item.Template.ParentId != _headwearId // Only headwear
+            || !eventArgs.Item.IsFoldableFolded() // Only folded
+           )
+            return;
 
         ___ItemUiContext.FoldItemWithDelay(eventArgs.Item, __instance.ItemContext, null, true);
     }

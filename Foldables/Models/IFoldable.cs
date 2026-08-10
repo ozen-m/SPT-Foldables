@@ -1,6 +1,8 @@
-﻿namespace Foldables.Models;
+﻿using EFT.InventoryLogic;
 
-public interface IFoldable : GInterface389
+namespace Foldables.Models;
+
+public interface IFoldable : IFoldableComponentTemplate
 {
     bool Folded { get; }
 

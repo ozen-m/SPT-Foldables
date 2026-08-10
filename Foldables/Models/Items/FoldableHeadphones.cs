@@ -1,21 +1,22 @@
-﻿using EFT.InventoryLogic;
+﻿using EFT;
+using EFT.InventoryLogic;
 using Foldables.Models.Templates;
 using JetBrains.Annotations;
 
 namespace Foldables.Models.Items;
 
-public class FoldableHeadphonesItemClass : HeadphonesItemClass, IFoldable
+public class FoldableHeadphones : Headphones, IFoldable
 {
-    [GAttribute26]
+    [Component]
     [UsedImplicitly]
     public readonly FoldableComponent Foldable;
 
-    private readonly FoldableHeadphonesTemplateClass _foldableHeadphonesTemplateClass;
+    private readonly FoldableHeadphonesTemplate _foldableHeadphonesTemplate;
 
-    public FoldableHeadphonesItemClass(string id, FoldableHeadphonesTemplateClass template)
+    public FoldableHeadphones(string id, FoldableHeadphonesTemplate template)
         : base(id, template)
     {
-        _foldableHeadphonesTemplateClass = template;
+        _foldableHeadphonesTemplate = template;
         if (template.Foldable)
         {
             Foldable = new FoldableComponent(this, template);
@@ -27,15 +28,15 @@ public class FoldableHeadphonesItemClass : HeadphonesItemClass, IFoldable
 
     public int SizeReduceRight => Foldable.SizeReduceRight;
 
-    public int SizeReduceDown => _foldableHeadphonesTemplateClass.SizeReduceDown;
+    public int SizeReduceDown => _foldableHeadphonesTemplate.SizeReduceDown;
 
-    public float FoldingTime => _foldableHeadphonesTemplateClass.FoldingTime;
+    public float FoldingTime => _foldableHeadphonesTemplate.FoldingTime;
 
-    public string FoldedSlot => _foldableHeadphonesTemplateClass.FoldedSlot;
+    public string FoldedSlot => _foldableHeadphonesTemplate.FoldedSlot;
 
     public override int GetHashSum()
     {
-        int hashSum = base.GetHashSum();
+        var hashSum = base.GetHashSum();
         if (Foldable != null)
         {
             hashSum = hashSum * 27 + Foldable.Folded.GetHashCode();
