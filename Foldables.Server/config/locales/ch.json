@@ -1,0 +1,23 @@
+{
+  // Thanks to egnbv! (https://forge.sp-tarkov.com/user/9881/egnbv)
+
+  // Server locales
+  "set-properties": "将 {{name}} ({{id}}) 折叠后的尺寸设置为： {{size}} ，折叠时间设置为: {{time}}",
+  "set-properties-skip": "跳过 {{name}} ({{id}}), 折叠后尺寸没有变化。",
+  "missing-override-properties": "ID： %s 的物品缺少覆写属性，这是预期行为？",
+  "added-backpacks": "为 %s 背包添加了可折叠特性。",
+  "added-vests": "为 %s 背心添加了可折叠特性。",
+  "added-headphones": "为 %s 耳机添加了可折叠特性。",
+  "load-success": "加载完成！",
+
+  // Client locales
+  "Container is folded": "该物品已被折叠！",
+  "Item is folded and can't unfold in place": "被折叠的物品不能在这个位置展开。",
+  "Cannot fold the item now": "该物品现在无被法折叠或展开！",
+  "Cannot fold the item while moving": "当前处于移动中，无法折叠或展开该物品！",
+  "Cannot fold the container with items inside": "该物品内有东西，无法进行折叠！",
+  "Cannot fold the container with unsearched items inside": "该物品内的空间还未完成搜索，无法进行折叠！",
+  "Cannot fold while the item is equipped": "该物品已被装备，无法进行折叠！",
+  "Do you want to spill the contents of {0} and fold?": "继续折叠 {0} 会把里面的东西倒出来！是否继续？",
+  " (Folded)": " (已折叠)"
+}
