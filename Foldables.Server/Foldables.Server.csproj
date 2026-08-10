@@ -1,33 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Foldables</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <OutputType>Library</OutputType>
-    <Version>1.0.3</Version>
+    <Version>1.1.0</Version>
     <Authors>ozen</Authors>
+    <AssemblyName>$(Authors)-$(RootNamespace)</AssemblyName>
+    <DebugType>portable</DebugType>
+    <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
     <!-- The two lines below will set the output path for the binaries -->
     <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SPTarkov.Common" Version="4.0.4" />
-    <PackageReference Include="SPTarkov.DI" Version="4.0.4" />
-    <PackageReference Include="SPTarkov.Server.Core" Version="4.0.4" />
-    <PackageReference Include="SPTarkov.Reflection" Version="4.0.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.*-*" PrivateAssets="all" />
+    <PackageReference Include="SPTarkov.Common" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.DI" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.Server.Core" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.Reflection" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.Server.Web" Version="4.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.*" PrivateAssets="all" />
   </ItemGroup>
 
   <Target Name="SetOutput" AfterTargets="Build">
     <PropertyGroup>
-      <DestDir>SPT\user\mods\$(Authors)-$(RootNamespace)</DestDir>
+      <DestDir>SPT_Runtime\user\mods\$(AssemblyName)</DestDir>
     </PropertyGroup>
     <ItemGroup>
       <OutputDLL Include="$(TargetPath)" />
       <Config Include="$(TargetDir)\config\**\*" />
-      <PDB Include="$(TargetDir)$(TargetName).pdb" Condition="'$(Configuration)' != 'Release'" />
+      <OutputDLL Include="$(TargetDir)$(TargetName).pdb" />
     </ItemGroup>
   </Target>
 </Project>

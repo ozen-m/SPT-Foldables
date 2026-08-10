@@ -7,18 +7,17 @@
   <Target Name="CopyOutput" AfterTargets="Build">
     <!-- To SPT Dir -->
     <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(SPTPath)$(DestDir)" Condition="@(OutputDLL.Count) != 0" />
-    <Copy SourceFiles="@(Config)" DestinationFolder="$(SPTPath)$(DestDir)\config\%(RecursiveDir)" Condition="@(Config.Count) != 0" />
-    <Copy SourceFiles="@(PDB)" DestinationFolder="$(SPTPath)$(DestDir)" Condition="'$(Configuration)' != 'Release' AND @(PDB.Count) != 0" />
+    <Copy SourceFiles="@(Config)" DestinationFolder="$(SPTPath)$(DestDir)\config\%(RecursiveDir)" />
 
     <!-- Release -->
     <Copy
       SourceFiles="@(OutputDLL)"
       DestinationFolder="$(SolutionDir)Dist\$(Authors)-$(RootNamespace)\$(DestDir)"
-      Condition="'$(Configuration)' == 'Release' AND @(OutputDLL.Count) != 0" />
+      Condition="'$(Configuration)' == 'Release'" />
     <Copy
       SourceFiles="@(Config)"
       DestinationFolder="$(SolutionDir)Dist\$(Authors)-$(RootNamespace)\$(DestDir)\config\%(RecursiveDir)"
-      Condition="'$(Configuration)' == 'Release' AND @(Config.Count) != 0" />
+      Condition="'$(Configuration)' == 'Release'" />
     <ZipDirectory
       SourceDirectory="$(SolutionDir)Dist\$(Authors)-$(RootNamespace)"
       DestinationFile="$(SolutionDir)Dist\$(Authors)-$(RootNamespace)-$(Version).zip"
