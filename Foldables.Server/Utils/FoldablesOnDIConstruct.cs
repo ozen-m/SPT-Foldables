@@ -30,6 +30,7 @@ public class FoldablesOnDIConstruct : IOnDIConstruct
     public static async Task OnDIConstructAsync(IServiceCollection serviceCollection, CancellationToken cancellationToken)
     {
         var modPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
         var configPath = Path.Combine(modPath, "config", "config.json");
         var config = await LoadAsync<FoldablesConfig>(configPath, cancellationToken);
         serviceCollection.AddSingleton(config);
@@ -56,7 +57,7 @@ public class FoldablesOnDIConstruct : IOnDIConstruct
 
         if (!Directory.Exists(localesDirectory))
         {
-            throw new FileNotFoundException($"Missing locales directory: {localesDirectory}");
+            throw new DirectoryNotFoundException($"Missing locales directory: {localesDirectory}");
         }
 
         var localeFiles = Directory.GetFiles(localesDirectory, "*.json");

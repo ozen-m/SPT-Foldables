@@ -30,7 +30,9 @@ public class OnItemAddedPatch : ModulePatch
             || __instance.Item.Template.ParentId != _headwearId // Only headwear
             || !eventArgs.Item.IsFoldableFolded() // Only folded
            )
+        {
             return;
+        }
 
         ___ItemUiContext.FoldItemWithDelay(eventArgs.Item, __instance.ItemContext, null, true);
     }

@@ -24,7 +24,9 @@ public class OnAddToSlotPatch : ModulePatch
             || !item.IsFoldableFolded()
             || __instance is ModSlotView /*ModSlotView conflicts with OnItemAddedPatch*/
            )
+        {
             return;
+        }
 
         if (item is Headphones)
         {

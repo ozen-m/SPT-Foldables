@@ -6,7 +6,7 @@
 
   <Target Name="CopyOutput" AfterTargets="Build">
     <!-- To SPT Dir -->
-    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(SPTPath)$(DestDir)" Condition="@(OutputDLL.Count) != 0" />
+    <Copy SourceFiles="@(OutputDLL)" DestinationFolder="$(SPTPath)$(DestDir)" />
     <Copy SourceFiles="@(Config)" DestinationFolder="$(SPTPath)$(DestDir)\config\%(RecursiveDir)" />
 
     <!-- Release -->

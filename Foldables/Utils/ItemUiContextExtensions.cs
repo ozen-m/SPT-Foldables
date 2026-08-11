@@ -162,9 +162,13 @@ public static class ItemUiContextExtensions
 
         // If to fold but not empty, ask if player wants to spill container contents
         if (item.RequiresEmptyingBeforeFold())
+        {
             _ = HandleNonEmptyFoldingAsync(itemUiContext, item, callback, inventoryController);
+        }
         else
+        {
             itemUiContext.FoldItem(item, callback);
+        }
     }
 
     public static void StopFolding()
