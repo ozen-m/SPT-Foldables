@@ -3,7 +3,7 @@ using Comfort.Common;
 using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
 using EFT.UI;
-using Foldables.Models;
+using Foldables.Models.Items;
 
 namespace Foldables.Utils;
 

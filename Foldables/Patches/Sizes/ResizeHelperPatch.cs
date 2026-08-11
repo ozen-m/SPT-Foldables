@@ -2,7 +2,7 @@
 using System.Reflection;
 using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
-using Foldables.Models;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 
 namespace Foldables.Patches.Sizes;

@@ -9,30 +9,19 @@ public class FoldableHeadphones : Headphones, IFoldable
 {
     [Component]
     [UsedImplicitly]
-    public readonly FoldableComponent Foldable;
+    public readonly ExtendedFoldableComponent Foldable;
 
-    private readonly FoldableHeadphonesTemplate _foldableHeadphonesTemplate;
+    public ExtendedFoldableComponent FoldableComponent => Foldable;
 
     public FoldableHeadphones(string id, FoldableHeadphonesTemplate template)
         : base(id, template)
     {
-        _foldableHeadphonesTemplate = template;
         if (template.Foldable)
         {
-            Foldable = new FoldableComponent(this, template);
+            Foldable = new ExtendedFoldableComponent(this, template);
             Components.Add(Foldable);
         }
     }
-
-    public bool Folded => Foldable is { Folded: true };
-
-    public int SizeReduceRight => Foldable.SizeReduceRight;
-
-    public int SizeReduceDown => _foldableHeadphonesTemplate.SizeReduceDown;
-
-    public float FoldingTime => _foldableHeadphonesTemplate.FoldingTime;
-
-    public string FoldedSlot => _foldableHeadphonesTemplate.FoldedSlot;
 
     public override int GetHashSum()
     {

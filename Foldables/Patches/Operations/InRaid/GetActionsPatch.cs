@@ -3,7 +3,7 @@ using EFT;
 using EFT.Communications;
 using EFT.InventoryLogic;
 using EFT.UI;
-using Foldables.Models;
+using Foldables.Models.Items;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 

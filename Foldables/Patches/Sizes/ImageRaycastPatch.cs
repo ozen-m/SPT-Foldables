@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using EFT.UI.DragAndDrop;
-using Foldables.Models;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 using UnityEngine.UI;
 

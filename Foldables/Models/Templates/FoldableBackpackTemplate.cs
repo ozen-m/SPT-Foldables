@@ -4,15 +4,11 @@ using EFT.InventoryLogic;
 
 namespace Foldables.Models.Templates;
 
-public class FoldableBackpackTemplate : BackpackTemplate, IFoldableComponentTemplate
+public class FoldableBackpackTemplate : BackpackTemplate, IExtendedFoldableComponentTemplate
 {
-    public bool Foldable;
-    public int SizeReduceRight;
-    public int SizeReduceDown;
-    public float FoldingTime;
-    public string FoldedSlot;
-
-    int IFoldableComponentTemplate.SizeReduceRight => SizeReduceRight;
-
-    string IFoldableComponentTemplate.FoldedSlot => FoldedSlot;
+    public bool Foldable { get; set; }
+    public string FoldedSlot { get; set; }
+    public int SizeReduceRight { get; set; }
+    public int SizeReduceDown { get; set; }
+    public float FoldingTime { get; set; }
 }

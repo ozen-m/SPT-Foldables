@@ -10,39 +10,28 @@ public class FoldableVest : Vest, IFoldable
 {
     [Component]
     [UsedImplicitly]
-    public readonly FoldableComponent Foldable;
+    public readonly ExtendedFoldableComponent Foldable;
 
-    private readonly FoldableVestTemplate _foldableVestTemplate;
+    public ExtendedFoldableComponent FoldableComponent => Foldable;
 
     public FoldableVest(string id, FoldableVestTemplate template)
         : base(id, template)
     {
-        _foldableVestTemplate = template;
         if (template.Foldable)
         {
-            Foldable = new FoldableComponent(this, template);
+            Foldable = new ExtendedFoldableComponent(this, template);
             Components.Add(Foldable);
         }
     }
 
     public override OperationResult Apply(ItemController itemController, Item item, int count, bool simulate)
     {
-        if (Folded)
+        if (Foldable.Folded)
         {
             return new FoldedInsertError(item);
         }
         return base.Apply(itemController, item, count, simulate);
     }
-
-    public bool Folded => Foldable is { Folded: true };
-
-    public int SizeReduceRight => Foldable.SizeReduceRight;
-
-    public int SizeReduceDown => _foldableVestTemplate.SizeReduceDown;
-
-    public float FoldingTime => _foldableVestTemplate.FoldingTime;
-
-    public string FoldedSlot => _foldableVestTemplate.FoldedSlot;
 
     public override int GetHashSum()
     {

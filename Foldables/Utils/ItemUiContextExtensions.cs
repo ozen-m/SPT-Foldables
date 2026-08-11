@@ -7,7 +7,7 @@ using EFT;
 using EFT.Communications;
 using EFT.InventoryLogic;
 using EFT.UI;
-using Foldables.Models;
+using Foldables.Models.Items;
 using HarmonyLib;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -67,9 +67,13 @@ public static class ItemUiContextExtensions
 
             // If to fold but not empty, ask if player wants to spill container contents
             if (item.RequiresEmptyingBeforeFold())
+            {
                 _ = HandleNonEmptyFoldingAsync(itemUiContext, item, callback);
+            }
             else
+            {
                 itemUiContext.FoldItem(item, callback);
+            }
 
             return;
         }

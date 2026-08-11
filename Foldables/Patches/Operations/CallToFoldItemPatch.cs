@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using EFT.InventoryLogic;
 using EFT.NextObservedPlayer.Operations;
 using EFT.UI;
-using Foldables.Models;
+using Foldables.Models.Items;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 
