@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>Foldables</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <OutputType>Library</OutputType>
+    <RootNamespace>Foldables</RootNamespace>
     <Version>1.1.0</Version>
     <Authors>ozen</Authors>
-    <AssemblyName>$(Authors)-$(RootNamespace)</AssemblyName>
-    <DebugType>portable</DebugType>
+    <AssemblyName>$(Authors).$(RootNamespace)</AssemblyName>
     <RepositoryUrl>https://github.com/ozen-m/SPT-Foldables</RepositoryUrl>
+    <DebugType>portable</DebugType>
+    <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildProjectDirectory)=/src/</PathMap>
     <!-- The two lines below will set the output path for the binaries -->
     <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -26,12 +27,12 @@
 
   <Target Name="SetOutput" AfterTargets="Build">
     <PropertyGroup>
-      <DestDir>SPT_Runtime\user\mods\$(AssemblyName)</DestDir>
+      <DestDir>SPT_Runtime\user\mods\$(Authors).$(SolutionName)</DestDir>
     </PropertyGroup>
     <ItemGroup>
       <OutputDLL Include="$(TargetPath)" />
-      <Config Include="$(TargetDir)\config\**\*" />
       <OutputDLL Include="$(TargetDir)$(TargetName).pdb" />
+      <Config Include="$(TargetDir)\config\**\*" />
     </ItemGroup>
   </Target>
 </Project>
