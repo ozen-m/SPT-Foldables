@@ -50,26 +50,32 @@ public static class MultiSelectInterop
 
         if (_uiFixesLoaded.Value)
         {
-            var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
-            var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
-            if (multiSelectType is not null && multiSelectControllerType is not null)
+            try
             {
+                var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
                 var applyAllMethodInfo = AccessTools.Method(multiSelectType, "ApplyAll");
                 _applyAllMethod = AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContext, Task>, bool>>(applyAllMethodInfo);
+
+                var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
                 var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
                 _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
+
                 Foldables.LogSource.LogInfo("UI Fixes interop loaded successfully");
             }
-            else
+            catch (Exception e)
             {
-                Foldables.LogSource.LogError($"UI Fixes {pluginInfo!.Metadata.Version} is present but something went wrong");
+                Foldables.LogSource.LogError(
+                    $"UI Fixes {pluginInfo!.Metadata.Version} is present but something went wrong. Interop will not work\n{e}"
+                );
                 _uiFixesLoaded = false;
             }
         }
 
         if (present && !correctVersion)
         {
-            Foldables.LogSource.LogWarning($"UI Fixes {pluginInfo.Metadata.Version} is present but {_requiredVersion} is required, interop will not work");
+            Foldables.LogSource.LogWarning(
+                $"UI Fixes {pluginInfo.Metadata.Version} is present but {_requiredVersion} is required, interop will not work"
+            );
         }
 
         return _uiFixesLoaded.Value;
