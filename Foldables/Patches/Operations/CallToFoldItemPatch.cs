@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Threading.Tasks;
+using Comfort.Common;
 using EFT.InventoryLogic;
-using EFT.NextObservedPlayer.Operations;
 using EFT.UI;
 using Foldables.Models.Items;
 using Foldables.Utils;
@@ -38,12 +38,8 @@ public class CallToFoldItemPatch : ModulePatch
                         return Task.CompletedTask;
                     }
 
-                    var tcs = new SafeTaskCompleteSource();
-                    __instance.ItemUiContext.FoldItemWithDelay(
-                        multiSelectItem,
-                        itemContext,
-                        (_) => { tcs.Complete(); }
-                    );
+                    var tcs = new TaskCompletionSource<IResult>();
+                    ItemUiContext.Instance.FoldItemWithDelay(multiSelectItem, itemContext, tcs.SetResult);
                     return tcs.Task;
                 },
                 foldableItem.Folded ? EItemInfoButton.Unfold : EItemInfoButton.Fold,
