@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
 using EFT.UI.DragAndDrop;
-using Foldables.Models;
-using HarmonyLib;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 using UnityEngine.UI;
 
 namespace Foldables.Patches.Sizes;
 
 /// <summary>
-/// Images when resized can extend past the item's cellsize, disable raycast on them instead of messing with scaling
+/// Images when resized can extend past the item's cell size, disable raycast on them instead of messing with scaling
 /// </summary>
 public class ImageRaycastPatch : ModulePatch
 {

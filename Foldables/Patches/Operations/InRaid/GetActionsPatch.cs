@@ -1,7 +1,9 @@
 using System.Reflection;
 using EFT;
+using EFT.Communications;
 using EFT.InventoryLogic;
-using Foldables.Models;
+using EFT.UI;
+using Foldables.Models.Items;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
 
@@ -14,36 +16,36 @@ public class GetActionsPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(GetActionsClass).GetMethod(nameof(GetActionsClass.smethod_9));
+        return typeof(InteractionContextHelper).GetMethod(nameof(InteractionContextHelper.GetAvailableInteractionState));
     }
 
     [PatchPostfix]
-    protected static void Postfix(GamePlayerOwner owner, Item rootItem, string lootItemName, ref ActionsReturnClass __result)
+    protected static void Postfix(GamePlayerOwner owner, Item rootItem, string lootItemName, ref AvailableInteractionState __result)
     {
-        if (rootItem is not IFoldable foldableItem || !InteractionsHandlerClass.CanFold(rootItem, out var foldableComponent))
+        if (rootItem is not IFoldable foldableItem || !ItemManipulator.CanFold(rootItem, out var foldableComponent))
         {
             return;
         }
 
-        InventoryController controller = owner.Player.InventoryController;
-        bool isExamined = controller.Examined(rootItem);
+        var controller = owner.Player.InventoryController;
+        var isExamined = controller.Examined(rootItem);
 
-        __result.Actions.Add(new ActionsTypesClass
+        __result.Actions.Add(new InteractionAction
         {
             Name = foldableItem.Folded ? "Unfold" : "Fold",
             TargetName = isExamined ? lootItemName : "Unknown item".Localized(),
             Action = () =>
             {
-                if (owner.Player.CurrentState is not IdleStateClass)
+                if (owner.Player.CurrentState is not IdlePlayerState)
                 {
-                    NotificationManagerClass.DisplayWarningNotification("Cannot fold the item while moving".Localized());
+                    NotificationManager.DisplayWarningNotification("Cannot fold the item while moving".Localized());
                     return;
                 }
 
                 if (foldableItem.FoldingTime > 0f)
                 {
                     // Simulate folding in raid by using PlantStateClass
-                    var foldingResult = InteractionsHandlerClass.Fold(foldableComponent, !foldableComponent.Folded, false);
+                    var foldingResult = ItemManipulator.Fold(foldableComponent, !foldableComponent.Folded, false);
                     owner.Player.CurrentManagedState.Plant(true, false, foldableItem.FoldingTime, (successful) =>
                     {
                         // Might appear that the operation failed (due to delay in callback) so do not simulate
@@ -64,7 +66,7 @@ public class GetActionsPatch : ModulePatch
                 }
                 else
                 {
-                    // No delay, use PickupStateClass
+                    // No delay, use PickUpState
                     rootItem.FoldItem((result) =>
                     {
                         if (result.Succeed)
@@ -72,7 +74,7 @@ public class GetActionsPatch : ModulePatch
                             owner.Player.CurrentManagedState.Pickup(true, () =>
                             {
                                 owner.Player.UpdateInteractionCast();
-                                if (owner.Player.CurrentState is PickupStateClass pickupStateClass)
+                                if (owner.Player.CurrentState is PickUpState pickupStateClass)
                                 {
                                     pickupStateClass.Pickup(false, null);
                                 }

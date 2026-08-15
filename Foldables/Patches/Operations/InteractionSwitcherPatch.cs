@@ -1,7 +1,7 @@
 using System.Reflection;
 using Comfort.Common;
 using EFT.InventoryLogic;
-using Foldables.Models;
+using EFT.UI;
 using Foldables.Models.Items;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
@@ -21,13 +21,13 @@ public class InteractionSwitcherPatch : ModulePatch
 
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(ContextInteractionSwitcherClass).GetMethod(nameof(ContextInteractionSwitcherClass.IsInteractive));
+        return typeof(ItemContextInteractionsSwitcher).GetMethod(nameof(ItemContextInteractionsSwitcher.IsInteractive));
     }
 
     [PatchPostfix]
-    protected static void Postfix(ContextInteractionSwitcherClass __instance, EItemInfoButton button, ref IResult __result)
+    protected static void Postfix(ItemContextInteractionsSwitcher __instance, EItemInfoButton button, ref IResult __result)
     {
-        if (__instance.Item_0_1 is not IFoldable)
+        if (__instance._item is not IFoldable)
         {
             return;
         }
@@ -40,7 +40,7 @@ public class InteractionSwitcherPatch : ModulePatch
                 __result = _foldItemFail;
                 return;
             }
-            case EItemInfoButton.Open when __instance.Item_0_1.IsFoldableFolded():
+            case EItemInfoButton.Open when __instance._item.IsFoldableFolded():
             {
                 // If item can't unfold, then fail opening
                 if (__instance.IsInteractive(EItemInfoButton.Unfold).Failed)
@@ -49,28 +49,26 @@ public class InteractionSwitcherPatch : ModulePatch
                 }
                 return;
             }
-            case EItemInfoButton.Fold when __instance.Item_0_1 is FoldableHeadphonesItemClass { Parent.Container: Slot }:
-            case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance.Item_0_1 is { Parent.Container: Slot }:
+            case EItemInfoButton.Fold when __instance._item is FoldableHeadphones { Parent.Container: Slot }:
+            case EItemInfoButton.Fold when !Foldables.FoldWhileEquipped.Value && __instance._item is { Parent.Container: Slot }:
             {
                 // Headphones cannot be folded while in a slot
                 // Config does not allow folding while item is equipped
                 __result = _foldItemEquippedFail;
                 return;
             }
-            case EItemInfoButton.Fold when !__instance.Item_0_1.IsEmptyNonLinq():
+            case EItemInfoButton.Fold when !__instance._item.IsEmptyNonLinq():
             {
                 // Found unknown items inside the container
-                if (__instance.TraderControllerClass.SearchController.ContainsUnknownItems(__instance.Item_0_1 as SearchableItemItemClass))
+                if (__instance._itemController.SearchController.ContainsUnknownItems(__instance._item as SearchableItem))
                 {
                     __result = _unknownItemsInsideFail;
                     return;
                 }
 
                 // If container is not empty and can spill contents, do not fail
-                var inventoryController = __instance.TraderControllerClass as InventoryController;
-                __result = __instance.Item_0_1.TryMoveContainedItemsToParent(inventoryController)
-                    ? SuccessfulResult.New
-                    : _itemsInsideFail;
+                var inventoryController = __instance._itemController as InventoryController;
+                __result = __instance._item.TryMoveContainedItemsToParent(inventoryController) ? SuccessfulResult.New : _itemsInsideFail;
                 return;
             }
         }

@@ -19,12 +19,12 @@ public class GetItemTypePatch : ModulePatch
     [PatchPrefix]
     protected static bool Prefix(Type itemType, ref EItemType __result)
     {
-        if (typeof(FoldableBackpackItemClass).IsAssignableFrom(itemType))
+        if (typeof(FoldableBackpack).IsAssignableFrom(itemType))
         {
             __result = EItemType.Backpack;
             return false;
         }
-        if (typeof(FoldableVestItemClass).IsAssignableFrom(itemType))
+        if (typeof(FoldableVest).IsAssignableFrom(itemType))
         {
             __result = EItemType.Equipment;
             return false;

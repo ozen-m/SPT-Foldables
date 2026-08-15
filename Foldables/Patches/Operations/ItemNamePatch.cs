@@ -1,4 +1,5 @@
 using System.Reflection;
+using EFT;
 using EFT.InventoryLogic;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
@@ -12,7 +13,7 @@ public class ItemNamePatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(ItemFactoryClass).GetMethod(nameof(ItemFactoryClass.BriefItemName));
+        return typeof(ItemFactory).GetMethod(nameof(ItemFactory.BriefItemName));
     }
 
     [PatchPostfix]

@@ -18,14 +18,17 @@ public class OnAddToSlotPatch : ModulePatch
     }
 
     [PatchPostfix]
-    protected static void Postfix(SlotView __instance, Item item, GEventArgs2 args, ItemUiContext ___ItemUiContext)
+    protected static void Postfix(SlotView __instance, Item item, AddItemEventArgs args, ItemUiContext ___ItemUiContext)
     {
-        if (args.Status != CommandStatus.Succeed ||
-            !item.IsFoldableFolded() ||
-            __instance is ModSlotView /*ModSlotView conflicts with OnItemAddedPatch*/
-           ) return;
+        if (args.Status != CommandStatus.Succeed
+            || !item.IsFoldableFolded()
+            || __instance is ModSlotView /*ModSlotView conflicts with OnItemAddedPatch*/
+           )
+        {
+            return;
+        }
 
-        if (item is HeadphonesItemClass)
+        if (item is Headphones)
         {
             ___ItemUiContext.FoldItemWithDelay(item, __instance.ParentItemContext, null, true);
             return;

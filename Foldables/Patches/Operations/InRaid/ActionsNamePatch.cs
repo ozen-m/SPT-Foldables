@@ -1,4 +1,5 @@
 using System.Reflection;
+using EFT;
 using EFT.UI;
 using Foldables.Utils;
 using SPT.Reflection.Patching;
@@ -13,15 +14,15 @@ public class ActionsNamePatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(ActionPanel).GetMethod(nameof(ActionPanel.method_0));
+        return typeof(ActionPanel).GetMethod(nameof(ActionPanel.AvailableInteractionStateChangedHandler));
     }
 
     [PatchPostfix]
-    protected static void Postfix(ActionsReturnClass interactionState, ref TextMeshProUGUI ____itemName)
+    protected static void Postfix(ActionPanel __instance, AvailableInteractionState interactionState)
     {
         if (interactionState != null && interactionState.GetIsFolded())
         {
-            ____itemName.text += " (Folded)".Localized().ToUpper();
+            __instance._itemName.text += " (Folded)".Localized().ToUpper();
         }
     }
 }

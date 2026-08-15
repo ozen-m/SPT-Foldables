@@ -17,7 +17,7 @@ public class OnRemoveFromSlotPatch : ModulePatch
     }
 
     [PatchPostfix]
-    protected static void Postfix(SearchableSlotView __instance, Item item, GEventArgs3 args)
+    protected static void Postfix(SearchableSlotView __instance, Item item, RemoveItemEventArgs args)
     {
         if (args.Status == CommandStatus.Failed && !item.IsFoldableFolded())
         {

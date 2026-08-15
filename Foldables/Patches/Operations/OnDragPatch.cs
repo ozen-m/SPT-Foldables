@@ -1,10 +1,9 @@
 using System.Reflection;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
-using Foldables.Models;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Foldables.Patches.Operations;
 
@@ -19,9 +18,12 @@ public class OnDragPatch : ModulePatch
     }
 
     [PatchPrefix]
-    protected static void Prefix(ItemView __instance, PointerEventData ___pointerEventData_0, ItemUiContext ___ItemUiContext)
+    protected static void Prefix(ItemView __instance, ItemUiContext ___ItemUiContext)
     {
-        if (Foldables.FoldWhileDragging.Value && __instance.BeingDragged && __instance.Item is IFoldable && Input.GetKey(Foldables.FoldWhileDragHotkey.Value.MainKey))
+        if (Foldables.FoldWhileDragging.Value
+            && __instance.BeingDragged
+            && __instance.Item is IFoldable
+            && Input.GetKey(Foldables.FoldWhileDragHotkey.Value.MainKey))
         {
             __instance.ExecuteMiddleClick(); // Fold/unfold
             RecreateDraggedItemView(__instance, ___ItemUiContext);
@@ -36,8 +38,13 @@ public class OnDragPatch : ModulePatch
             Object.DestroyImmediate(itemView.DraggedItemView.gameObject);
         }
 
-        itemView.DraggedItemView = DraggedItemView.Create(itemView.ItemContext, itemView.ItemRotation, itemView.Examined ? Color.white : new Color(0f, 0f, 0f, 0.85f), itemUiContext);
+        itemView.DraggedItemView = DraggedItemView.Create(
+            itemView.ItemContext,
+            itemView.ItemRotation,
+            itemView.Examined ? Color.white : new Color(0f, 0f, 0f, 0.85f),
+            itemUiContext
+        );
         ((RectTransform)itemView.DraggedItemView!.transform).position = itemView.transform.position;
-        itemView.DraggedItemView.method_2(itemView.DraggedItemView.ItemContext.ItemRotation);
+        itemView.DraggedItemView.RotateItem(itemView.DraggedItemView.ItemContext.ItemRotation);
     }
 }

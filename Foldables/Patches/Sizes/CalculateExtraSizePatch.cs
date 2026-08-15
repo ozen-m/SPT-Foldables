@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using EFT.InventoryLogic;
-using Foldables.Models;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 
 namespace Foldables.Patches.Sizes;
@@ -18,7 +18,10 @@ public class CalculateExtraSizePatch : ModulePatch
     [PatchPostfix]
     protected static void Postfix(CompoundItem __instance, FoldableComponent overrideFoldable, bool overrideValue, Slot overrideSlot, Item overrideSlotContent, ref ExtraSize __result)
     {
-        if (__instance is not IFoldable foldableItem) return;
+        if (__instance is not IFoldable foldableItem)
+        {
+            return;
+        }
 
         ExtraSize newSize = default;
 

@@ -1,72 +1,74 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using Diz.LanguageExtensions;
 using EFT.InventoryLogic;
-using Foldables.Models;
+using Foldables.Models.Items;
 using SPT.Reflection.Patching;
 
 namespace Foldables.Patches.Sizes;
 
+// TODO: Maybe change to transpiler
 public class ResizeHelperPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(InteractionsHandlerClass).GetMethod(nameof(InteractionsHandlerClass.Resize_Helper));
+        return typeof(ItemManipulator).GetMethod(nameof(ItemManipulator.Resize_Helper));
     }
 
     [PatchPrefix]
-    protected static bool Prefix(Item item, ItemAddress location, InteractionsHandlerClass.EResizeAction resizeAction, bool backwards, bool simulate, ref GStruct154<GClass3416> __result)
+    protected static bool Prefix(Item item, ItemAddress location, ItemManipulator.EResizeAction resizeAction, bool backwards, bool simulate, ref OperationResult<ResizeResult> __result)
     {
-        List<Item> list = simulate ? null : [];
-        if (location is GClass3390)
-        {
-            __result = new GClass3416(item, location, resizeAction, list, default(GStruct424));
-            return false;
-        }
-        Item item2 = resizeAction is InteractionsHandlerClass.EResizeAction.Fold or InteractionsHandlerClass.EResizeAction.Unfold ? item : location.Container.ParentItem;
-        GInterface407 gInterface = default(GStruct424);
-        while (item2 is CompoundItem compoundItem and (Weapon or Mod or IFoldable) && compoundItem.Parent is not GClass3390)
-        {
-            if (compoundItem.Parent is GClass3393)
-            {
-                var xYCellSizeStruct = compoundItem.CalculateCellSize();
-                var xYCellSizeStruct2 = resizeAction switch
-                {
-                    InteractionsHandlerClass.EResizeAction.Unfold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: false),
-                    InteractionsHandlerClass.EResizeAction.Fold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: true),
-                    InteractionsHandlerClass.EResizeAction.Removal => compoundItem.GetSizeAfterDetachment(location, item),
-                    InteractionsHandlerClass.EResizeAction.Addition => compoundItem.GetSizeAfterAttachment(location, item),
-                    _ => compoundItem.CalculateCellSize(),
-                };
-                var oldSize = backwards ? xYCellSizeStruct2 : xYCellSizeStruct;
-                var newSize = backwards ? xYCellSizeStruct : xYCellSizeStruct2;
-                GStruct154<GInterface407> gStruct = InteractionsHandlerClass.smethod_21(compoundItem, oldSize, newSize, simulate);
-                if (!gStruct.Succeeded)
-                {
-                    if (!simulate)
-                    {
-                        foreach (Item item3 in list)
-                        {
-                            InteractionsHandlerClass.smethod_21(item3, oldSize, item3.CalculateCellSize(), simulate: false);
-                        }
-                        gInterface.RollBack();
-                    }
-                    __result = new InteractionsHandlerClass.GClass1605(item, compoundItem, location, newSize);
-                    return false;
-                }
-                if (gStruct.Value.IsRealResize)
-                {
-                    gInterface = gStruct.Value;
-                }
-                if (!simulate)
-                {
-                    list.Add(compoundItem);
-                }
-            }
-            // Don't check parent item if IFoldable
-            // Double check for side effects
-            item2 = compoundItem is not IFoldable ? compoundItem.Parent.Container.ParentItem : null;
-        }
-        __result = new GClass3416(item, location, resizeAction, list, gInterface);
-        return false;
+	    var list = simulate ? null : new List<Item>();
+		if (location is OwnerItself)
+		{
+			__result = new ResizeResult(item, location, resizeAction, list, default(NoContainerResizeResult));
+			return false;
+		}
+		var item2 = resizeAction is ItemManipulator.EResizeAction.Fold or ItemManipulator.EResizeAction.Unfold ? item : location.Container.ParentItem;
+		IContainerResizeResult containerResizeResult = default(NoContainerResizeResult);
+		while (item2 is CompoundItem compoundItem and (Weapon or Mod or IFoldable /* Insert IFoldable */) && compoundItem.Parent is not OwnerItself)
+		{
+			if (compoundItem.Parent is GridItemAddress)
+			{
+				var intVec = compoundItem.CalculateCellSize();
+				var intVec2 = resizeAction switch
+				{
+					ItemManipulator.EResizeAction.Unfold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: false),
+					ItemManipulator.EResizeAction.Fold => compoundItem.GetSizeAfterFolding(location, item.GetItemComponent<FoldableComponent>(), folded: true),
+					ItemManipulator.EResizeAction.Removal => compoundItem.GetSizeAfterDetachment(location, item),
+					ItemManipulator.EResizeAction.Addition => compoundItem.GetSizeAfterAttachment(location, item),
+					_ => compoundItem.CalculateCellSize(),
+				};
+				var oldSize = backwards ? intVec2 : intVec;
+				var newSize = backwards ? intVec : intVec2;
+				var operationResult = ItemManipulator.Resize(compoundItem, oldSize, newSize, simulate);
+				if (!operationResult.Succeeded)
+				{
+					if (!simulate)
+					{
+						foreach (var item3 in list)
+						{
+							ItemManipulator.Resize(item3, oldSize, item3.CalculateCellSize(), simulate: false);
+						}
+						containerResizeResult.RollBack();
+					}
+					__result = new ItemManipulator.ResizeError(item, compoundItem, location, newSize);
+					return false;
+				}
+				if (operationResult.Value.IsRealResize)
+				{
+					containerResizeResult = operationResult.Value;
+				}
+				if (!simulate)
+				{
+					list.Add(compoundItem);
+				}
+			}
+			// Don't check parent item if IFoldable
+			// Double check for side effects
+			item2 = compoundItem is not IFoldable ? compoundItem.Parent.Container.ParentItem : null;
+		}
+		__result = new ResizeResult(item, location, resizeAction, list, containerResizeResult);
+		return false;
     }
 }

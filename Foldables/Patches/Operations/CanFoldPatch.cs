@@ -12,13 +12,16 @@ public class CanFoldPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(InteractionsHandlerClass).GetMethod(nameof(InteractionsHandlerClass.CanFold));
+        return typeof(ItemManipulator).GetMethod(nameof(ItemManipulator.CanFold));
     }
 
     [PatchPrefix]
-    protected static bool Prefix(InteractionsHandlerClass __instance, Item item, ref bool __result)
+    protected static bool Prefix(Item item, ref bool __result)
     {
-        if (item is not HeadwearItemClass) return true;
+        if (item is not Headwear)
+        {
+            return true;
+        }
 
         __result = false;
         return false;

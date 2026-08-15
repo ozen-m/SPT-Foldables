@@ -13,13 +13,13 @@ public class SearchableItemViewShowPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return typeof(SearchableItemView).GetMethod(nameof(SearchableItemView.method_0));
+        return typeof(SearchableItemView).GetMethod(nameof(SearchableItemView.ShowGrids));
     }
 
     [PatchPrefix]
-    protected static bool Prefix(CompoundItem ___compoundItem_0)
+    protected static bool Prefix(CompoundItem ____item)
     {
-        if (___compoundItem_0.IsFoldableFolded())
+        if (____item.IsFoldableFolded())
         {
             return false;
         }
