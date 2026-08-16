@@ -12,10 +12,12 @@ public class FoldableVest : Vest, IFoldable
     [UsedImplicitly]
     public readonly ExtendedFoldableComponent Foldable;
 
-    public ExtendedFoldableComponent FoldableComponent => Foldable;
+    public bool Folded => Foldable is {Folded: true};
+    public int SizeReduceRight => GetTemplate<FoldableVestTemplate>().SizeReduceRight;
+    public int SizeReduceDown => GetTemplate<FoldableVestTemplate>().SizeReduceDown;
+    public float FoldingTime => GetTemplate<FoldableVestTemplate>().FoldingTime;
 
-    public FoldableVest(string id, FoldableVestTemplate template)
-        : base(id, template)
+    public FoldableVest(string id, FoldableVestTemplate template) : base(id, template)
     {
         if (template.Foldable)
         {
@@ -26,7 +28,7 @@ public class FoldableVest : Vest, IFoldable
 
     public override OperationResult Apply(ItemController itemController, Item item, int count, bool simulate)
     {
-        if (Foldable.Folded)
+        if (Folded)
         {
             return new FoldedInsertError(item);
         }

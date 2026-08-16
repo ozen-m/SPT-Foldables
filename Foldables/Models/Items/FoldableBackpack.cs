@@ -12,7 +12,10 @@ public class FoldableBackpack : Backpack, IFoldable
     [UsedImplicitly]
     public readonly ExtendedFoldableComponent Foldable;
 
-    public ExtendedFoldableComponent FoldableComponent => Foldable;
+    public bool Folded => Foldable is {Folded: true};
+    public int SizeReduceRight => GetTemplate<FoldableBackpackTemplate>().SizeReduceRight;
+    public int SizeReduceDown => GetTemplate<FoldableBackpackTemplate>().SizeReduceDown;
+    public float FoldingTime => GetTemplate<FoldableBackpackTemplate>().FoldingTime;
 
     public FoldableBackpack(string id, FoldableBackpackTemplate template) : base(id, template)
     {
@@ -25,7 +28,7 @@ public class FoldableBackpack : Backpack, IFoldable
 
     public override OperationResult Apply(ItemController itemController, Item item, int count, bool simulate)
     {
-        if (Foldable.Folded)
+        if (Folded)
         {
             return new FoldedInsertError(item);
         }

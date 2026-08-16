@@ -11,10 +11,12 @@ public class FoldableHeadphones : Headphones, IFoldable
     [UsedImplicitly]
     public readonly ExtendedFoldableComponent Foldable;
 
-    public ExtendedFoldableComponent FoldableComponent => Foldable;
+    public bool Folded => Foldable is {Folded: true};
+    public int SizeReduceRight => GetTemplate<FoldableHeadphonesTemplate>().SizeReduceRight;
+    public int SizeReduceDown => GetTemplate<FoldableHeadphonesTemplate>().SizeReduceDown;
+    public float FoldingTime => GetTemplate<FoldableHeadphonesTemplate>().FoldingTime;
 
-    public FoldableHeadphones(string id, FoldableHeadphonesTemplate template)
-        : base(id, template)
+    public FoldableHeadphones(string id, FoldableHeadphonesTemplate template) : base(id, template)
     {
         if (template.Foldable)
         {
