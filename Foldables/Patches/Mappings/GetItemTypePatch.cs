@@ -29,6 +29,10 @@ public class GetItemTypePatch : ModulePatch
             __result = EItemType.Equipment;
             return false;
         }
+        if (typeof(FoldableHeadphones).IsAssignableFrom(itemType))
+        {
+            __result = EItemType.Equipment;
+        }
         return true;
     }
 }
