@@ -7,7 +7,7 @@ using HarmonyLib;
 
 namespace Foldables.Utils;
 
-public static class MultiSelectInterop
+internal static class MultiSelectInterop
 {
     private static readonly Version _requiredVersion = new(6, 0, 0);
 
@@ -26,7 +26,12 @@ public static class MultiSelectInterop
     /// <param name="interaction">The type of interaction to be done.</param>
     /// <param name="allOrNothing">If the function must be possible for all selected items.</param>
     /// <param name="itemUiContext">Optional <c>ItemUiContext</c>; will use <c>ItemUiContext.Instance</c> if not provided.</param>
-    public static void ApplyAll(Func<ItemContext, Task> func, EItemInfoButton interaction, bool allOrNothing, ItemUiContext itemUiContext = null)
+    public static void ApplyAll(
+        Func<ItemContext, Task> func,
+        EItemInfoButton interaction,
+        bool allOrNothing,
+        ItemUiContext itemUiContext = null
+    )
     {
         if (!Loaded())
         {
@@ -54,18 +59,24 @@ public static class MultiSelectInterop
             {
                 var multiSelectType = Type.GetType("UIFixes.MultiSelect, Tyfon.UIFixes");
                 var applyAllMethodInfo = AccessTools.Method(multiSelectType, "ApplyAll");
-                _applyAllMethod = AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContext, Task>, bool>>(applyAllMethodInfo);
+                _applyAllMethod =
+                    AccessTools.MethodDelegate<Action<ItemUiContext, EItemInfoButton, Func<ItemContext, Task>, bool>>(applyAllMethodInfo);
 
                 var multiSelectControllerType = Type.GetType("UIFixes.MultiSelectController, Tyfon.UIFixes");
                 var getCountMethodInfo = AccessTools.Method(multiSelectControllerType, "GetCount");
                 _getCountMethod = AccessTools.MethodDelegate<Func<int>>(getCountMethodInfo);
 
+                if (_applyAllMethod is null || _getCountMethod is null)
+                {
+                    throw new InvalidOperationException("UI Fixes interop: Required method or field could not be found.");
+                }
+
                 Foldables.LogSource.LogInfo("UI Fixes interop loaded successfully");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 Foldables.LogSource.LogError(
-                    $"UI Fixes {pluginInfo!.Metadata.Version} is present but something went wrong. Interop will not work\n{e}"
+                    $"UI Fixes {pluginInfo!.Metadata.Version} is present but something went wrong. Interop will not work\n{ex}"
                 );
                 _uiFixesLoaded = false;
             }
@@ -74,7 +85,7 @@ public static class MultiSelectInterop
         if (present && !correctVersion)
         {
             Foldables.LogSource.LogWarning(
-                $"UI Fixes {pluginInfo.Metadata.Version} is present but {_requiredVersion} is required, interop will not work"
+                $"UI Fixes {pluginInfo.Metadata.Version} is present but minimum version: {_requiredVersion} is required, interop will not work"
             );
         }
 
