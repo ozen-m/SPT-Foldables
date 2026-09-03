@@ -38,17 +38,17 @@ public class Foldables(
 
         var backpacksItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.BACKPACK) && GetIsFoldable(i.Id));
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.BACKPACK) && GetIsFoldable(i.Id, BaseClasses.BACKPACK));
         AddFoldableProperties(backpacksItemTemplates, BaseClasses.BACKPACK);
 
         var vestsItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && GetIsFoldable(i.Id) && !i.Properties!.Slots!.Any());
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.VEST) && GetIsFoldable(i.Id, BaseClasses.VEST) && !i.Properties!.Slots!.Any());
         AddFoldableProperties(vestsItemTemplates, BaseClasses.VEST);
 
         var headphonesItemTemplates = items
             .Values
-            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id));
+            .Where(i => itemHelper.IsOfBaseclass(i.Id, BaseClasses.HEADPHONES) && GetIsFoldable(i.Id, BaseClasses.HEADPHONES));
         AddFoldableProperties(headphonesItemTemplates, BaseClasses.HEADPHONES);
 
         foreach (var patch in patches)
@@ -216,9 +216,18 @@ public class Foldables(
         }));
     }
 
-    private bool GetIsFoldable(MongoId itemId)
+    private bool GetIsFoldable(MongoId itemId, MongoId baseClass)
     {
-        return !config.Overrides.TryGetValue(itemId, out var overrideProperties) || overrideProperties.Foldable;
+        if (config.Overrides.TryGetValue(itemId, out var overrideProperties))
+        {
+            return overrideProperties.Foldable;
+        }
+        if (config.Overrides.TryGetValue(baseClass, out var baseClassOverrideProperties))
+        {
+            return baseClassOverrideProperties.Foldable;
+        }
+
+        return true;
     }
 
     private double GetFoldingTime(MongoId itemId, int gridCount, int minGridCount, int maxGridCount, MongoId baseClass)
